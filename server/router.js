@@ -9,6 +9,7 @@ const router = (app) => {
   app.post('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signup);
   app.get('/logout', mid.requiresLogin, controllers.Account.logout);
   app.get('/search', controllers.Playlist.searchPage);
+  app.get('searchTerm',)
   //app.post('/maker', mid.requiresLogin, controllers.Domo.make);
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
 };

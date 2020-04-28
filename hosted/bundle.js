@@ -1,8 +1,13 @@
 "use strict";
 
+//const client = require('../login/client.js');
 var handleSearch = function handleSearch(e) {
   e.preventDefault();
-  sendAjax('POST', $('#searchForm').attr("action"), $('#searchForm').serialize(), redirect);
+  var searchTerm = $('#searchForm').attr("action");
+  console.log(encodeURIComponent($('#searchName').val())); //searchTerm += "q="+encodeURIComponent($('#searchName').val());
+  // searchTerm += encodeURIComponent(client.accessToken);
+
+  sendAjax('GET', searchTerm, $('#searchForm').serialize(), redirect);
   return false;
 };
 
@@ -11,7 +16,7 @@ var SearchWindow = function SearchWindow(props) {
       id: "searchForm",
       name: "searchForm",
       onSubmit: handleSearch,
-      action: "/search",
+      action: "https://api.spotify.com/v1/search?q=",
       method: "GET",
       className: "searchForm"
     }, /*#__PURE__*/React.createElement("label", {
@@ -30,6 +35,14 @@ var SearchWindow = function SearchWindow(props) {
       type: "submit",
       value: "Search Term"
     }))
+  );
+};
+
+var SearchResultsWindow = function SearchResultsWindow(props) {
+  return (/*#__PURE__*/React.createElement("form", {
+      id: "searchResultForm",
+      name: "searchResultName"
+    })
   );
 }; // const handleDomo = (e) => {
 //     e.preventDefault();
@@ -95,7 +108,7 @@ var SearchWindow = function SearchWindow(props) {
 var createSearchWindow = function createSearchWindow(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(SearchWindow, {
     csrf: csrf
-  }), document.querySelector('#content'));
+  }), document.querySelector('#searchNav'));
 };
 
 var setup = function setup(csrf) {

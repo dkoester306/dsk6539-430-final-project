@@ -1,13 +1,21 @@
+//const client = require('../login/client.js');
+
 const handleSearch = (e) => {
     e.preventDefault();
-    sendAjax('POST', $('#searchForm').attr("action"), $('#searchForm').serialize(), redirect);
+    let searchTerm = $('#searchForm').attr("action");
+    console.log(encodeURIComponent($('#searchName').val()));
+    //searchTerm += "q="+encodeURIComponent($('#searchName').val());
+   // searchTerm += encodeURIComponent(client.accessToken);
+    
+    sendAjax('GET', searchTerm, $('#searchForm').serialize(), redirect);
     return false;
 }
+
 const SearchWindow = (props) => {
     return (
         <form id="searchForm" name="searchForm"
             onSubmit={handleSearch}
-            action='/search'
+            action='https://api.spotify.com/v1/search?q='
             method='GET'
             className="searchForm"
         >
@@ -17,8 +25,15 @@ const SearchWindow = (props) => {
             <input className="makeSearchSubmit" type="submit" value="Search Term" />
         </form>
     );
-    
 };
+
+const SearchResultsWindow = (props) => {
+    return (
+        <form id="searchResultForm" name="searchResultName">
+
+        </form>
+    )
+}
 
 // const handleDomo = (e) => {
 //     e.preventDefault();
@@ -88,12 +103,13 @@ const SearchWindow = (props) => {
 const createSearchWindow = (csrf) => {
     ReactDOM.render(
         <SearchWindow csrf={csrf} />,
-        document.querySelector('#content')
+        document.querySelector('#searchNav')
     );
 };
 
+
+
 const setup = function (csrf) {
-    
     createSearchWindow(csrf);
     
 };
