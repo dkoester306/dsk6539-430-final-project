@@ -1,11 +1,11 @@
-
+var accessToken = null;
 const handleLogin = (e) => {
     e.preventDefault();
 
     // console.log($("input[name=_csrf]").val());
     // console.log($("#loginForm").attr("action"));
     // console.log($("#loginForm").serialize());
-    
+
     sendAjax('GET', $("#loginForm").attr("action"), $("#loginForm").serialize(), redirect);
     return false;
 };
@@ -42,6 +42,8 @@ const LoginWindow = (props) => {
         </form>
     );
 };
+
+
 
 const SignupWindow = (props) => {
     // return (
@@ -81,15 +83,35 @@ const setup = (csrf) => {
 
     createLoginWindow(csrf); // default view
 };
+const getHashParams = () => {
+    var hashParams = {};
+    var e,
+        r = /([^&;=]+)=?([^&;]*)/g,
+        q = window.location.hash.substring(1);
+    while ((e = r.exec(q))) {
+        hashParams[e[1]] = decodeURIComponent(e[2]);
+    }
+    return hashParams;
+};
+
 
 const getToken = () => {
     sendAjax('GET', '/getToken', null, (result) => {
-        console.log("IN getToken "+ result.csrfToken);
+        console.log("IN getToken " + result.csrfToken);
         setup(result.csrfToken);
     });
 };
 
 $(document).ready(function () {
     getToken();
+
+    // get accessToken for spotify from the URL and store it.
+    var params = getHashParams();
+    accessToken = params.access_token;
+    if (accessToken) {
+        window.location = "http://localhost:3000/search";
+    }
 });
+
+module.exports.accessToken = accessToken;
 

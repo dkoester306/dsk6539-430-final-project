@@ -1,3 +1,25 @@
+const handleSearch = (e) => {
+    e.preventDefault();
+    sendAjax('POST', $('#searchForm').attr("action"), $('#searchForm').serialize(), redirect);
+    return false;
+}
+const SearchWindow = (props) => {
+    return (
+        <form id="searchForm" name="searchForm"
+            onSubmit={handleSearch}
+            action='/search'
+            method='GET'
+            className="searchForm"
+        >
+            <label htmlFor="searchTerm">Search Term: </label>
+            <input id="searchName" type="text" name="searchTerm" placeholder="Search Term" />
+            <input type="hidden" name="_csrf" values={props.csrf} />
+            <input className="makeSearchSubmit" type="submit" value="Search Term" />
+        </form>
+    );
+    
+};
+
 // const handleDomo = (e) => {
 //     e.preventDefault();
 //     $("#domoMessage").animate({ width: 'hide' }, 350);
@@ -63,11 +85,19 @@
 //     });
 // };
 
+const createSearchWindow = (csrf) => {
+    ReactDOM.render(
+        <SearchWindow csrf={csrf} />,
+        document.querySelector('#content')
+    );
+};
+
 const setup = function (csrf) {
     
-    console.log("IN setup maker.js");
+    createSearchWindow(csrf);
     
 };
+
 
 
 const getToken = () => {
@@ -78,4 +108,5 @@ const getToken = () => {
 
 $(document).ready(function () {
     getToken(); 
+    
 });

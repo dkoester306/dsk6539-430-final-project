@@ -1,5 +1,7 @@
 "use strict";
 
+var accessToken = null;
+
 var handleLogin = function handleLogin(e) {
   e.preventDefault(); // console.log($("input[name=_csrf]").val());
   // console.log($("#loginForm").attr("action"));
@@ -78,6 +80,19 @@ var setup = function setup(csrf) {
   createLoginWindow(csrf); // default view
 };
 
+var getHashParams = function getHashParams() {
+  var hashParams = {};
+  var e,
+      r = /([^&;=]+)=?([^&;]*)/g,
+      q = window.location.hash.substring(1);
+
+  while (e = r.exec(q)) {
+    hashParams[e[1]] = decodeURIComponent(e[2]);
+  }
+
+  return hashParams;
+};
+
 var getToken = function getToken() {
   sendAjax('GET', '/getToken', null, function (result) {
     console.log("IN getToken " + result.csrfToken);
@@ -86,8 +101,16 @@ var getToken = function getToken() {
 };
 
 $(document).ready(function () {
-  getToken();
+  getToken(); // get accessToken for spotify from the URL and store it.
+
+  var params = getHashParams();
+  accessToken = params.access_token;
+
+  if (accessToken) {
+    window.location = "http://localhost:3000/search";
+  }
 });
+module.exports.accessToken = accessToken;
 "use strict";
 
 var handleError = function handleError(message) {
@@ -96,7 +119,7 @@ var handleError = function handleError(message) {
 
 var redirect = function redirect(response) {
   //$("#domoMessage").animate({ width: 'hide' }, 350);
-  console.log("response.redirect: " + response.redirect);
+  //console.log("response.redirect: "+response.redirect);
   window.location = response.redirect;
 };
 

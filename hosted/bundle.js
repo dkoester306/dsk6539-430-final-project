@@ -1,6 +1,37 @@
 "use strict";
 
-// const handleDomo = (e) => {
+var handleSearch = function handleSearch(e) {
+  e.preventDefault();
+  sendAjax('POST', $('#searchForm').attr("action"), $('#searchForm').serialize(), redirect);
+  return false;
+};
+
+var SearchWindow = function SearchWindow(props) {
+  return (/*#__PURE__*/React.createElement("form", {
+      id: "searchForm",
+      name: "searchForm",
+      onSubmit: handleSearch,
+      action: "/search",
+      method: "GET",
+      className: "searchForm"
+    }, /*#__PURE__*/React.createElement("label", {
+      htmlFor: "searchTerm"
+    }, "Search Term: "), /*#__PURE__*/React.createElement("input", {
+      id: "searchName",
+      type: "text",
+      name: "searchTerm",
+      placeholder: "Search Term"
+    }), /*#__PURE__*/React.createElement("input", {
+      type: "hidden",
+      name: "_csrf",
+      values: props.csrf
+    }), /*#__PURE__*/React.createElement("input", {
+      className: "makeSearchSubmit",
+      type: "submit",
+      value: "Search Term"
+    }))
+  );
+}; // const handleDomo = (e) => {
 //     e.preventDefault();
 //     $("#domoMessage").animate({ width: 'hide' }, 350);
 //     if ($("domoName").val() == '' || $("#domoAge").val() == '') {
@@ -59,8 +90,16 @@
 //         );
 //     });
 // };
+
+
+var createSearchWindow = function createSearchWindow(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(SearchWindow, {
+    csrf: csrf
+  }), document.querySelector('#content'));
+};
+
 var setup = function setup(csrf) {
-  console.log("IN setup maker.js");
+  createSearchWindow(csrf);
 };
 
 var getToken = function getToken() {
@@ -80,7 +119,7 @@ var handleError = function handleError(message) {
 
 var redirect = function redirect(response) {
   //$("#domoMessage").animate({ width: 'hide' }, 350);
-  console.log("response.redirect: " + response.redirect);
+  //console.log("response.redirect: "+response.redirect);
   window.location = response.redirect;
 };
 

@@ -5,7 +5,7 @@ const handleError = (message) => {
 
 const redirect = (response) => {
     //$("#domoMessage").animate({ width: 'hide' }, 350);
-    console.log("response.redirect: "+response.redirect);
+    //console.log("response.redirect: "+response.redirect);
     window.location = response.redirect;
 };
 
