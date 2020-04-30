@@ -13,7 +13,6 @@ const url = require('url');
 const redis = require('redis');
 const csrf = require('csurf');
 const cors = require('cors');
-const request = require('request');
 const querystring = require('querystring');
 
 var client_id = '6211d589dd89434aba2398d090ccb59d'; // Your client id

@@ -1,13 +1,22 @@
 
-//const client = require('../login/client.js');
 const handleSearch = (e) => {
     e.preventDefault();
-    let searchTerm = $('#searchForm').attr("action");
-    searchTerm += "?q=" + encodeURIComponent($('#searchName').val());
-   // searchTerm += encodeURIComponent(client.accessToken);
     
-    sendWithToken('GET', searchTerm, null, function () {
-        console.log('Sent with token'); 
+    
+    const newData = {term: "?q="+ encodeURIComponent($("#searchName").val()),};
+  
+    $.ajax({
+        type: 'GET',
+        url: $("#searchForm").attr("action"),
+        data: newData,
+        dataType: 'json',
+        success: function () {
+            console.log("Searched term successfully");
+        },
+        error: function (xhr, status, error) {
+            var messageObj = JSON.parse(xhr.responseText);
+            handleError(messageObj.error);
+        }
     });
     return false;
 }
@@ -16,12 +25,12 @@ const SearchWindow = (props) => {
     return (
         <form id="searchForm" name="searchForm"
             onSubmit={handleSearch}
-            action='https://api.spotify.com/v1/search'
+            action='/searchTerm'
             method='GET'
             className="searchForm"
         >
-            <label htmlFor="searchTerm">Search Term: </label>
-            <input id="searchName" type="text" name="searchTerm" placeholder="Search Term" />
+            <label htmlFor="q">Search Term: </label>
+            <input id="searchName" type="text" name="q" placeholder="Search Term" />
             <input type="hidden" name="_csrf" values={props.csrf} />
             <input className="makeSearchSubmit" type="submit" value="Search Term" />
         </form>
@@ -36,71 +45,6 @@ const SearchResultsWindow = (props) => {
     )
 }
 
-// const handleDomo = (e) => {
-//     e.preventDefault();
-//     $("#domoMessage").animate({ width: 'hide' }, 350);
-
-//     if ($("domoName").val() == '' || $("#domoAge").val() == '') {
-//         handleError("RAWR!! All fields are required");
-//         return false;
-//     }
-
-//     sendAjax('POST', $("#domoForm").attr("action"), $("#domoForm").serialize(), function () {
-//         loadDomosFromServer();
-//     });
-//     return false;
-// };
-
-// const DomoForm = (props) => {
-//     return (
-//         <form id="domoForm" name="domoForm"
-//             onSubmit={handleDomo}
-//             action="/maker"
-//             method="POST"
-//             className="domoForm"
-//         >
-//             <label htmlFor="name">Name: </label>
-//             <input id="domoName" type="text" name="name" placeholder="Domo Name" />
-//             <label htmlFor="age">Age: </label>
-//             <input id="domoAge" type="text" name="age" placeholder="Domo Age" />
-//             <input type="hidden" name="_csrf" value={props.csrf} />
-//             <input className="makeDomoSubmit" type="submit" value="Make Domo" />
-//         </form>
-//     );
-// };
-
-// const DomoList = function (props) {
-//     if (props.domos.length === 0) {
-//         return (
-//             <div className="domoList">
-//                 <h3 className="emptyDomo">No Domos Yet</h3>
-//             </div>
-//         );
-//     }
-//     const domoNodes = props.domos.map(function (domo) {
-//         return (
-//             <div key={domo._id} className="domo">
-//                 <img src="/assets/img/domoface.jpeg" alt="domo face" className="domoFace" />
-//                 <h3 className="domoName">Name: {domo.name}</h3>
-//                 <h3 className="domoAge">Age: {domo.age}</h3>
-//             </div>
-//         );
-//     });
-//     return (
-//         <div className="domoList">
-//             {domoNodes}
-//         </div>
-//     );
-// };
-
-// const loadDomosFromServer = () => {
-//     sendAjax('GET', '/getDomos', null, (data) => {
-//         ReactDOM.render(
-//             <DomoList domos={data.domos} />, document.querySelector("#domos")
-//         );
-//     });
-// };
-
 const createSearchWindow = (csrf) => {
     ReactDOM.render(
         <SearchWindow csrf={csrf} />,
@@ -109,12 +53,10 @@ const createSearchWindow = (csrf) => {
 };
 
 
-
 const setup = function (csrf) {
     createSearchWindow(csrf);
     
 };
-
 
 
 const getToken = () => {

@@ -22,8 +22,8 @@ const LoginWindow = (props) => {
     );
 };
 
-const sendWithToken = (type, action, data, success) => {
-    if (accessToken == null) {
+const sendWithToken = (type, action, token, data, success) => {
+    if (token == null) {
         console.log("No access Token");
         return;
     }
@@ -33,7 +33,7 @@ const sendWithToken = (type, action, data, success) => {
         url: action,
         data: data,
         headers: {
-            'Authorization': 'Bearer ' + accessToken
+            'Authorization': 'Bearer ' + token
         },
         dataType: 'json',
         success: success,
@@ -55,6 +55,29 @@ const createLoginWindow = (csrf) => {
 const setup = (csrf) => {
 
     createLoginWindow(csrf); // default view
+    // get accessToken for spotify from the URL and store it.
+    var params = getHashParams();
+    accessToken = params.access_token;
+    let myToken = { token: accessToken };
+
+    // once token is gotten, redirect to search/homepage
+    if (accessToken) {
+        $.ajax({
+            url: '/storeToken',
+            method: 'POST',
+            data: myToken,
+            headers: {
+                'X-CSRF-Token': csrf
+            },
+            success: function (response) {
+                console.log("Spotify Token Acquired");
+                window.location = response.redirect;
+            },
+            error: function () {
+                console.log("failure to log in");
+            }
+        });
+    }
 };
 const getHashParams = () => {
     var hashParams = {};
@@ -78,11 +101,5 @@ const getToken = () => {
 $(document).ready(function () {
     getToken();
 
-    // get accessToken for spotify from the URL and store it.
-    var params = getHashParams();
-    accessToken = params.access_token;
-    if (accessToken) {
-        window.location = "http://localhost:3000/search";
-    }
 });
 

@@ -28,8 +28,8 @@ var LoginWindow = function LoginWindow(props) {
   );
 };
 
-var sendWithToken = function sendWithToken(type, action, data, success) {
-  if (accessToken == null) {
+var sendWithToken = function sendWithToken(type, action, token, data, success) {
+  if (token == null) {
     console.log("No access Token");
     return;
   }
@@ -40,7 +40,7 @@ var sendWithToken = function sendWithToken(type, action, data, success) {
     url: action,
     data: data,
     headers: {
-      'Authorization': 'Bearer ' + accessToken
+      'Authorization': 'Bearer ' + token
     },
     dataType: 'json',
     success: success,
@@ -59,6 +59,31 @@ var createLoginWindow = function createLoginWindow(csrf) {
 
 var setup = function setup(csrf) {
   createLoginWindow(csrf); // default view
+  // get accessToken for spotify from the URL and store it.
+
+  var params = getHashParams();
+  accessToken = params.access_token;
+  var myToken = {
+    token: accessToken
+  }; // once token is gotten, redirect to search/homepage
+
+  if (accessToken) {
+    $.ajax({
+      url: '/storeToken',
+      method: 'POST',
+      data: myToken,
+      headers: {
+        'X-CSRF-Token': csrf
+      },
+      success: function success(response) {
+        console.log("Spotify Token Acquired");
+        window.location = response.redirect;
+      },
+      error: function error() {
+        console.log("failure to log in");
+      }
+    });
+  }
 };
 
 var getHashParams = function getHashParams() {
@@ -82,14 +107,7 @@ var getToken = function getToken() {
 };
 
 $(document).ready(function () {
-  getToken(); // get accessToken for spotify from the URL and store it.
-
-  var params = getHashParams();
-  accessToken = params.access_token;
-
-  if (accessToken) {
-    window.location = "http://localhost:3000/search";
-  }
+  getToken();
 });
 "use strict";
 
@@ -116,22 +134,20 @@ var sendAjax = function sendAjax(type, action, data, success) {
       handleError(messageObj.error);
     }
   });
-};
-
-var sendAjaxWithToken = function sendAjaxWithToken(type, action, data, token, success) {
-  $.ajax({
-    cache: false,
-    type: type,
-    url: action,
-    data: data,
-    headers: {
-      'Authorization': 'Bearer ' + token
-    },
-    dataType: 'json',
-    success: success,
-    error: function error(xhr, status, _error2) {
-      var messageObj = JSON.parse(xhr.responseText);
-      handleError(messageObj.error);
-    }
-  });
-};
+}; // const sendAjaxWithToken = (type, action, data, token, success) => {
+//     $.ajax({
+//         cache: false,
+//         type: type,
+//         url: action,
+//         data: data,
+//         headers: {
+//             'Authorization': 'Bearer ' + token
+//         },
+//         dataType: 'json',
+//         success: success,
+//         error: function (xhr, status, error) {
+//             var messageObj = JSON.parse(xhr.responseText);
+//             handleError(messageObj.error);
+//         }
+//     });
+// };
