@@ -1,13 +1,14 @@
-//const client = require('../login/client.js');
 
+//const client = require('../login/client.js');
 const handleSearch = (e) => {
     e.preventDefault();
     let searchTerm = $('#searchForm').attr("action");
-    console.log(encodeURIComponent($('#searchName').val()));
-    //searchTerm += "q="+encodeURIComponent($('#searchName').val());
+    searchTerm += "?q=" + encodeURIComponent($('#searchName').val());
    // searchTerm += encodeURIComponent(client.accessToken);
     
-    sendAjax('GET', searchTerm, $('#searchForm').serialize(), redirect);
+    sendWithToken('GET', searchTerm, null, function () {
+        console.log('Sent with token'); 
+    });
     return false;
 }
 
@@ -15,7 +16,7 @@ const SearchWindow = (props) => {
     return (
         <form id="searchForm" name="searchForm"
             onSubmit={handleSearch}
-            action='https://api.spotify.com/v1/search?q='
+            action='https://api.spotify.com/v1/search'
             method='GET'
             className="searchForm"
         >

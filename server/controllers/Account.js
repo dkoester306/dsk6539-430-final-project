@@ -30,6 +30,8 @@ const login = (request, response) => {
   const req = request;
   const res = response;
 
+  //console.log(req.url);
+
   var clientId = "901e07a2f6b7423c81cc56454daa023c"; // Your client id
   var redirectUri = "http://localhost:3000/"; // Your redirect uri
 
@@ -62,6 +64,18 @@ const getToken = (request, response) => {
 
   res.json(csrfToken);
 };
+
+const getHashParams = () => {
+  var hashParams = {};
+  var e,
+      r = /([^&;=]+)=?([^&;]*)/g,
+      q = window.location.hash.substring(1);
+  while ((e = r.exec(q))) {
+      hashParams[e[1]] = decodeURIComponent(e[2]);
+  }
+  return hashParams;
+};
+
 
 module.exports.loginPage = loginPage;
 module.exports.login = login;

@@ -3,26 +3,9 @@
 var accessToken = null;
 
 var handleLogin = function handleLogin(e) {
-  e.preventDefault(); // console.log($("input[name=_csrf]").val());
-  // console.log($("#loginForm").attr("action"));
-  // console.log($("#loginForm").serialize());
-
+  e.preventDefault();
   sendAjax('GET', $("#loginForm").attr("action"), $("#loginForm").serialize(), redirect);
   return false;
-};
-
-var handleSignup = function handleSignup(e) {// e.preventDefault();
-  // $("#domoMessage").animate({ width: 'hide' }, 350);
-  // if ($("#user").val() == '' || $("#pass").val() == '' || $('#pass2').val() == '') {
-  //     handleError("RAWR!! All fields are required");
-  //     return false;
-  // }
-  // if ($("#pass").val() !== $('#pass2').val()) {
-  //     handleError("RAWR!! Passwords do not match");
-  //     return false;
-  // }
-  // sendAjax('POST', $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
-  // return false;
 };
 
 var LoginWindow = function LoginWindow(props) {
@@ -45,35 +28,33 @@ var LoginWindow = function LoginWindow(props) {
   );
 };
 
-var SignupWindow = function SignupWindow(props) {// return (
-  //     <form id="signupForm" name="signupForm"
-  //         onSubmit={handleSignup}
-  //         action="/signup"
-  //         method="POST"
-  //         className="mainForm"
-  //     >
-  //         <label htmlFor="username">Username: </label>
-  //         <input id="user" type="text" name="username" placeholder="username" />
-  //         <label htmlFor="pass">Password: </label>
-  //         <input id="pass" type="password" name="pass" placeholder="password" />
-  //         <label htmlFor="pass2">Password: </label>
-  //         <input id="pass2" type="password" name="pass2" placeholder="retype password" />
-  //         <input type="hidden" name="_csrf" value={props.csrf} />
-  //         <input className="formSubmit" type="submit" value="Sign Up" />
-  //     </form>
-  // );
+var sendWithToken = function sendWithToken(type, action, data, success) {
+  if (accessToken == null) {
+    console.log("No access Token");
+    return;
+  }
+
+  $.ajax({
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    headers: {
+      'Authorization': 'Bearer ' + accessToken
+    },
+    dataType: 'json',
+    success: success,
+    error: function error(xhr, status, _error) {
+      var messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });
 };
 
 var createLoginWindow = function createLoginWindow(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(LoginWindow, {
     csrf: csrf
   }), document.querySelector("#content"));
-};
-
-var createSignupWindow = function createSignupWindow(csrf) {// ReactDOM.render(
-  //     <SignupWindow csrf={csrf} />,
-  //     document.querySelector("#content")
-  // );
 };
 
 var setup = function setup(csrf) {
@@ -110,7 +91,6 @@ $(document).ready(function () {
     window.location = "http://localhost:3000/search";
   }
 });
-module.exports.accessToken = accessToken;
 "use strict";
 
 var handleError = function handleError(message) {
@@ -132,6 +112,24 @@ var sendAjax = function sendAjax(type, action, data, success) {
     dataType: 'json',
     success: success,
     error: function error(xhr, status, _error) {
+      var messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });
+};
+
+var sendAjaxWithToken = function sendAjaxWithToken(type, action, data, token, success) {
+  $.ajax({
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    headers: {
+      'Authorization': 'Bearer ' + token
+    },
+    dataType: 'json',
+    success: success,
+    error: function error(xhr, status, _error2) {
       var messageObj = JSON.parse(xhr.responseText);
       handleError(messageObj.error);
     }

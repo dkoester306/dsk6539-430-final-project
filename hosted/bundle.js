@@ -4,10 +4,11 @@
 var handleSearch = function handleSearch(e) {
   e.preventDefault();
   var searchTerm = $('#searchForm').attr("action");
-  console.log(encodeURIComponent($('#searchName').val())); //searchTerm += "q="+encodeURIComponent($('#searchName').val());
-  // searchTerm += encodeURIComponent(client.accessToken);
+  searchTerm += "?q=" + encodeURIComponent($('#searchName').val()); // searchTerm += encodeURIComponent(client.accessToken);
 
-  sendAjax('GET', searchTerm, $('#searchForm').serialize(), redirect);
+  sendWithToken('GET', searchTerm, null, function () {
+    console.log('Sent with token');
+  });
   return false;
 };
 
@@ -16,7 +17,7 @@ var SearchWindow = function SearchWindow(props) {
       id: "searchForm",
       name: "searchForm",
       onSubmit: handleSearch,
-      action: "https://api.spotify.com/v1/search?q=",
+      action: "https://api.spotify.com/v1/search",
       method: "GET",
       className: "searchForm"
     }, /*#__PURE__*/React.createElement("label", {
@@ -145,6 +146,24 @@ var sendAjax = function sendAjax(type, action, data, success) {
     dataType: 'json',
     success: success,
     error: function error(xhr, status, _error) {
+      var messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });
+};
+
+var sendAjaxWithToken = function sendAjaxWithToken(type, action, data, token, success) {
+  $.ajax({
+    cache: false,
+    type: type,
+    url: action,
+    data: data,
+    headers: {
+      'Authorization': 'Bearer ' + token
+    },
+    dataType: 'json',
+    success: success,
+    error: function error(xhr, status, _error2) {
       var messageObj = JSON.parse(xhr.responseText);
       handleError(messageObj.error);
     }

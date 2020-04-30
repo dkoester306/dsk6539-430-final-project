@@ -1,32 +1,11 @@
-var accessToken = null;
+let accessToken = null;
 const handleLogin = (e) => {
     e.preventDefault();
-
-    // console.log($("input[name=_csrf]").val());
-    // console.log($("#loginForm").attr("action"));
-    // console.log($("#loginForm").serialize());
 
     sendAjax('GET', $("#loginForm").attr("action"), $("#loginForm").serialize(), redirect);
     return false;
 };
 
-const handleSignup = (e) => {
-    // e.preventDefault();
-    // $("#domoMessage").animate({ width: 'hide' }, 350);
-
-    // if ($("#user").val() == '' || $("#pass").val() == '' || $('#pass2').val() == '') {
-    //     handleError("RAWR!! All fields are required");
-    //     return false;
-    // }
-
-    // if ($("#pass").val() !== $('#pass2').val()) {
-    //     handleError("RAWR!! Passwords do not match");
-    //     return false;
-    // }
-
-    // sendAjax('POST', $("#signupForm").attr("action"), $("#signupForm").serialize(), redirect);
-    // return false;
-};
 
 const LoginWindow = (props) => {
     return (
@@ -43,40 +22,34 @@ const LoginWindow = (props) => {
     );
 };
 
-
-
-const SignupWindow = (props) => {
-    // return (
-    //     <form id="signupForm" name="signupForm"
-    //         onSubmit={handleSignup}
-    //         action="/signup"
-    //         method="POST"
-    //         className="mainForm"
-    //     >
-    //         <label htmlFor="username">Username: </label>
-    //         <input id="user" type="text" name="username" placeholder="username" />
-    //         <label htmlFor="pass">Password: </label>
-    //         <input id="pass" type="password" name="pass" placeholder="password" />
-    //         <label htmlFor="pass2">Password: </label>
-    //         <input id="pass2" type="password" name="pass2" placeholder="retype password" />
-    //         <input type="hidden" name="_csrf" value={props.csrf} />
-    //         <input className="formSubmit" type="submit" value="Sign Up" />
-    //     </form>
-    // );
+const sendWithToken = (type, action, data, success) => {
+    if (accessToken == null) {
+        console.log("No access Token");
+        return;
+    }
+    $.ajax({
+        cache: false,
+        type: type,
+        url: action,
+        data: data,
+        headers: {
+            'Authorization': 'Bearer ' + accessToken
+        },
+        dataType: 'json',
+        success: success,
+        error: function (xhr, status, error) {
+            var messageObj = JSON.parse(xhr.responseText);
+            handleError(messageObj.error);
+        }
+    });
 };
+
 
 const createLoginWindow = (csrf) => {
     ReactDOM.render(
         <LoginWindow csrf={csrf} />,
         document.querySelector("#content")
     );
-};
-
-const createSignupWindow = (csrf) => {
-    // ReactDOM.render(
-    //     <SignupWindow csrf={csrf} />,
-    //     document.querySelector("#content")
-    // );
 };
 
 const setup = (csrf) => {
@@ -112,6 +85,4 @@ $(document).ready(function () {
         window.location = "http://localhost:3000/search";
     }
 });
-
-module.exports.accessToken = accessToken;
 
