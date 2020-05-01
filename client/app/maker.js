@@ -11,7 +11,7 @@ const handleSearch = (e) => {
         dataType: 'json',
         success: function (data) {
             //console.log(data.tracks.items);
-            loadSearchResults(data.tracks.items);
+            loadSearchResults(data);
         },
         error: function (xhr, status, error) {
             var messageObj = JSON.parse(xhr.responseText);
@@ -55,13 +55,17 @@ const MainPageWindow = (props) => {
 
 
 const SearchResultWindow = function (props) {
-    if (false) {
+    if (props.items.length===0) {
         return (
             <div className="searchResultsList">
                 <h3 className="emptySearchResults">No Results Found</h3>
             </div>
         );
     }
+    const resultNodes = props.items;
+    console.log(resultNodes);
+
+
     return (
         <div>
             <p>THERE IS NOTHING HERE</p>
@@ -69,16 +73,9 @@ const SearchResultWindow = function (props) {
     );
 };
 
-const createSearchResultWindow = (csrf) => {
-    ReactDOM.render(
-        <SearchResultWindow csrf={csrf} />,
-        document.querySelector('#searchDiv')
-    );
-}
-
 const loadSearchResults = (data) => {
     ReactDOM.render(
-        <SearchResultWindow />,
+        <SearchResultWindow results={data.tracks} />,
         document.querySelector('#searchDiv')
     );
     

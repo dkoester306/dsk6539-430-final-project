@@ -13,7 +13,7 @@ var handleSearch = function handleSearch(e) {
     dataType: 'json',
     success: function success(data) {
       //console.log(data.tracks.items);
-      loadSearchResults(data.tracks.items);
+      loadSearchResults(data);
     },
     error: function error(xhr, status, _error) {
       var messageObj = JSON.parse(xhr.responseText);
@@ -64,7 +64,7 @@ var MainPageWindow = function MainPageWindow(props) {
 };
 
 var SearchResultWindow = function SearchResultWindow(props) {
-  if (false) {
+  if (props.items.length === 0) {
     return (/*#__PURE__*/React.createElement("div", {
         className: "searchResultsList"
       }, /*#__PURE__*/React.createElement("h3", {
@@ -73,18 +73,16 @@ var SearchResultWindow = function SearchResultWindow(props) {
     );
   }
 
+  var resultNodes = props.items;
+  console.log(resultNodes);
   return (/*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "THERE IS NOTHING HERE"))
   );
 };
 
-var createSearchResultWindow = function createSearchResultWindow(csrf) {
-  ReactDOM.render( /*#__PURE__*/React.createElement(SearchResultWindow, {
-    csrf: csrf
-  }), document.querySelector('#searchDiv'));
-};
-
 var loadSearchResults = function loadSearchResults(data) {
-  ReactDOM.render( /*#__PURE__*/React.createElement(SearchResultWindow, null), document.querySelector('#searchDiv'));
+  ReactDOM.render( /*#__PURE__*/React.createElement(SearchResultWindow, {
+    results: data.tracks
+  }), document.querySelector('#searchDiv'));
 };
 
 var createMainPageWindow = function createMainPageWindow(csrf) {
