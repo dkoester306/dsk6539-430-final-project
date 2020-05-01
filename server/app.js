@@ -21,7 +21,7 @@ var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/DomoMaker';
+const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/DanielPlaylists';
 
 var generateRandomString = function (length) {
   var text = '';

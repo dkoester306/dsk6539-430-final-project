@@ -1,5 +1,6 @@
 "use strict";
 
+// handle what happens when user presses the search button
 var handleSearch = function handleSearch(e) {
   e.preventDefault();
   var newData = {
@@ -10,8 +11,8 @@ var handleSearch = function handleSearch(e) {
     url: $("#searchForm").attr("action"),
     data: newData,
     dataType: 'json',
-    success: function success() {
-      console.log("Searched term successfully");
+    success: function success(data) {
+      console.log(data);
     },
     error: function error(xhr, status, _error) {
       var messageObj = JSON.parse(xhr.responseText);
@@ -19,6 +20,10 @@ var handleSearch = function handleSearch(e) {
     }
   });
   return false;
+};
+
+var handleSearchResults = function handleSearchResults(e) {
+  e.preventDefault();
 };
 
 var SearchWindow = function SearchWindow(props) {
@@ -48,13 +53,12 @@ var SearchWindow = function SearchWindow(props) {
   );
 };
 
-var SearchResultsWindow = function SearchResultsWindow(props) {
-  return (/*#__PURE__*/React.createElement("form", {
-      id: "searchResultForm",
-      name: "searchResultName"
-    })
-  );
+var SearchResultsWindow = function SearchResultsWindow(props) {// return (
+  //     <
+  // );
 };
+
+var createSearchResultsWindow = function createSearchResultsWindow(csrf) {};
 
 var createSearchWindow = function createSearchWindow(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(SearchWindow, {

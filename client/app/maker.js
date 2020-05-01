@@ -1,4 +1,4 @@
-
+// handle what happens when user presses the search button
 const handleSearch = (e) => {
     e.preventDefault();
     
@@ -10,8 +10,9 @@ const handleSearch = (e) => {
         url: $("#searchForm").attr("action"),
         data: newData,
         dataType: 'json',
-        success: function () {
-            console.log("Searched term successfully");
+        success: function (data) {
+            console.log(data);
+            
         },
         error: function (xhr, status, error) {
             var messageObj = JSON.parse(xhr.responseText);
@@ -20,6 +21,12 @@ const handleSearch = (e) => {
     });
     return false;
 }
+
+const handleSearchResults = (e) => {
+    e.preventDefault();
+
+
+};
 
 const SearchWindow = (props) => {
     return (
@@ -37,13 +44,16 @@ const SearchWindow = (props) => {
     );
 };
 
-const SearchResultsWindow = (props) => {
-    return (
-        <form id="searchResultForm" name="searchResultName">
-
-        </form>
-    )
+const SearchResultsWindow = function(props) {
+    // return (
+    //     <
+    // );
 }
+
+const createSearchResultsWindow = (csrf) => {
+    
+}
+
 
 const createSearchWindow = (csrf) => {
     ReactDOM.render(

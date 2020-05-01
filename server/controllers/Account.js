@@ -2,8 +2,6 @@ const models = require('../models');
 
 const { Account } = models;
 
-let currentSpotifyToken = null;
-
 const loginPage = (req, res) => {
   res.render('login', { csrfToken: req.csrfToken() });
 };
@@ -56,7 +54,7 @@ const storeToken = (request, response) => {
   if (!req.body.token) {
     return res.status(400).json({ error: "You need the access token to proceed." });
   }
-  currentSpotifyToken = req.body.token;
+  module.exports.currentSpotifyToken = req.body.token;
 
   return res.json({ redirect: '/search' });
 };
@@ -103,4 +101,5 @@ module.exports.logout = logout;
 module.exports.signup = signup;
 module.exports.getToken = getToken;
 module.exports.storeToken = storeToken;
+module.exports.currentSpotifyToken = 'NOTOKEN';
 //module.exports.getSpotifyToken = getSpotifyToken;
