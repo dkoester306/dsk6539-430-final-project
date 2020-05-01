@@ -1,18 +1,17 @@
 // handle what happens when user presses the search button
 const handleSearch = (e) => {
     e.preventDefault();
-    
-    
-    const newData = {term: "?q="+ encodeURIComponent($("#searchName").val()),};
-  
+
+    const newData = { term: "?q=" + encodeURIComponent($("#searchName").val()), };
+
     $.ajax({
         type: 'GET',
         url: $("#searchForm").attr("action"),
         data: newData,
         dataType: 'json',
         success: function (data) {
-            console.log(data);
-            
+            //console.log(data.tracks.items);
+            loadSearchResults(data.tracks.items);
         },
         error: function (xhr, status, error) {
             var messageObj = JSON.parse(xhr.responseText);
@@ -22,11 +21,7 @@ const handleSearch = (e) => {
     return false;
 }
 
-const handleSearchResults = (e) => {
-    e.preventDefault();
 
-
-};
 
 const SearchWindow = (props) => {
     return (
@@ -36,7 +31,7 @@ const SearchWindow = (props) => {
             method='GET'
             className="searchForm"
         >
-            <label htmlFor="q">Search Term: </label>
+            <label htmlFor="q">Song Search </label>
             <input id="searchName" type="text" name="q" placeholder="Search Term" />
             <input type="hidden" name="_csrf" values={props.csrf} />
             <input className="makeSearchSubmit" type="submit" value="Search Term" />
@@ -44,15 +39,57 @@ const SearchWindow = (props) => {
     );
 };
 
-const SearchResultsWindow = function(props) {
-    // return (
-    //     <
-    // );
+const MainPageWindow = (props) => {
+    return (
+        <div className="container">
+            <div id="searchDiv" className="containerContent">
+                <h3>Search Results</h3>
+
+            </div>
+            <div id="playlistDiv" className="containerContent">
+                <h3>All Playlists</h3>
+            </div>
+        </div>
+    );
 }
 
-const createSearchResultsWindow = (csrf) => {
-    
+
+const SearchResultWindow = function (props) {
+    if (false) {
+        return (
+            <div className="searchResultsList">
+                <h3 className="emptySearchResults">No Results Found</h3>
+            </div>
+        );
+    }
+    return (
+        <div>
+            <p>THERE IS NOTHING HERE</p>
+        </div>
+    );
+};
+
+const createSearchResultWindow = (csrf) => {
+    ReactDOM.render(
+        <SearchResultWindow csrf={csrf} />,
+        document.querySelector('#searchDiv')
+    );
 }
+
+const loadSearchResults = (data) => {
+    ReactDOM.render(
+        <SearchResultWindow />,
+        document.querySelector('#searchDiv')
+    );
+    
+};
+
+const createMainPageWindow = (csrf) => {
+    ReactDOM.render(
+        <MainPageWindow csrf={csrf} />,
+        document.querySelector('#mainContent')
+    );
+};
 
 
 const createSearchWindow = (csrf) => {
@@ -65,17 +102,18 @@ const createSearchWindow = (csrf) => {
 
 const setup = function (csrf) {
     createSearchWindow(csrf);
-    
+    createMainPageWindow(csrf);
+    createSearchResultWindow(csrf);
 };
 
 
 const getToken = () => {
     sendAjax('GET', '/getToken', null, (result) => {
-        setup(result.csrfToken); 
+        setup(result.csrfToken);
     });
 };
 
 $(document).ready(function () {
-    getToken(); 
-    
+    getToken();
+
 });

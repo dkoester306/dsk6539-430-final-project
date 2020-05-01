@@ -4,6 +4,7 @@ html, body {
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+    background-color: #181818;
 }
 
 #logo {
@@ -48,24 +49,47 @@ nav:nth-child(1) {
 }
 
  .searchForm {
-    border: 2px solid #338acc;
-    height: 35px;
-    width: 700px;
+    /* border: 2px solid #1a3420; */
+    height: 60px;
     margin-top:0px;
-    padding-top:10px;
-    background-color: #55acee;
-    border-bottom-right-radius: 4px;
-    border-top-right-radius: 4px;
+    padding-top:30px;
+    padding-left: 20px;
+    background-color: #121212;
 }
 
-.domoForm label {
+.searchForm label {
+    font-family: Helvetica, sans-serif;
+    color: #ffffff;
+    float: left;
+    padding-right: 1em;
+}
+.searchForm input[type=text]{
+    float:left;
+    border: 2px solid #ffffff;
+}
+
+.container > div {
+    background: #292929;
+    margin: 1em;
+    padding: 1em;
+    border-radius: 3em;
+    height: 80vh;
+}
+
+.container{
+    display:grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
+}
+
+/* .domoForm label {
     display: inline-block;
     width: 75px;
     margin-left: 10px;
     font-size: 1.2em;
     float: left;
     color: white;
-}
+} */
 
 /* .domoForm input[type=text] {
     float:left;

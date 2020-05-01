@@ -12,7 +12,8 @@ var handleSearch = function handleSearch(e) {
     data: newData,
     dataType: 'json',
     success: function success(data) {
-      console.log(data);
+      //console.log(data.tracks.items);
+      loadSearchResults(data.tracks.items);
     },
     error: function error(xhr, status, _error) {
       var messageObj = JSON.parse(xhr.responseText);
@@ -20,10 +21,6 @@ var handleSearch = function handleSearch(e) {
     }
   });
   return false;
-};
-
-var handleSearchResults = function handleSearchResults(e) {
-  e.preventDefault();
 };
 
 var SearchWindow = function SearchWindow(props) {
@@ -36,7 +33,7 @@ var SearchWindow = function SearchWindow(props) {
       className: "searchForm"
     }, /*#__PURE__*/React.createElement("label", {
       htmlFor: "q"
-    }, "Search Term: "), /*#__PURE__*/React.createElement("input", {
+    }, "Song Search "), /*#__PURE__*/React.createElement("input", {
       id: "searchName",
       type: "text",
       name: "q",
@@ -53,12 +50,48 @@ var SearchWindow = function SearchWindow(props) {
   );
 };
 
-var SearchResultsWindow = function SearchResultsWindow(props) {// return (
-  //     <
-  // );
+var MainPageWindow = function MainPageWindow(props) {
+  return (/*#__PURE__*/React.createElement("div", {
+      className: "container"
+    }, /*#__PURE__*/React.createElement("div", {
+      id: "searchDiv",
+      className: "containerContent"
+    }, /*#__PURE__*/React.createElement("h3", null, "Search Results")), /*#__PURE__*/React.createElement("div", {
+      id: "playlistDiv",
+      className: "containerContent"
+    }, /*#__PURE__*/React.createElement("h3", null, "All Playlists")))
+  );
 };
 
-var createSearchResultsWindow = function createSearchResultsWindow(csrf) {};
+var SearchResultWindow = function SearchResultWindow(props) {
+  if (false) {
+    return (/*#__PURE__*/React.createElement("div", {
+        className: "searchResultsList"
+      }, /*#__PURE__*/React.createElement("h3", {
+        className: "emptySearchResults"
+      }, "No Results Found"))
+    );
+  }
+
+  return (/*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "THERE IS NOTHING HERE"))
+  );
+};
+
+var createSearchResultWindow = function createSearchResultWindow(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(SearchResultWindow, {
+    csrf: csrf
+  }), document.querySelector('#searchDiv'));
+};
+
+var loadSearchResults = function loadSearchResults(data) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(SearchResultWindow, null), document.querySelector('#searchDiv'));
+};
+
+var createMainPageWindow = function createMainPageWindow(csrf) {
+  ReactDOM.render( /*#__PURE__*/React.createElement(MainPageWindow, {
+    csrf: csrf
+  }), document.querySelector('#mainContent'));
+};
 
 var createSearchWindow = function createSearchWindow(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(SearchWindow, {
@@ -68,6 +101,8 @@ var createSearchWindow = function createSearchWindow(csrf) {
 
 var setup = function setup(csrf) {
   createSearchWindow(csrf);
+  createMainPageWindow(csrf);
+  createSearchResultWindow(csrf);
 };
 
 var getToken = function getToken() {

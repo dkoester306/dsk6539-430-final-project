@@ -21,12 +21,10 @@ const searchTerm = (req, res) => {
     };
     console.log(options.url);
     
-    console.log("TOKEN: "+account.currentSpotifyToken);
+    //console.log("TOKEN: "+account.currentSpotifyToken);
     request.get(options, function (error, response, body) {
         if (!error) {
-            //console.log(body);
             return res.json(body);
-            
         }
         else {
             console.log(error);
