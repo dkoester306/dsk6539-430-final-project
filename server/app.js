@@ -12,7 +12,7 @@ const RedisStore = require('connect-redis')(session);
 const url = require('url');
 const redis = require('redis');
 const csrf = require('csurf');
-const cors = require('cors');
+
 const querystring = require('querystring');
 
 var client_id = '6211d589dd89434aba2398d090ccb59d'; // Your client id
@@ -115,6 +115,7 @@ app.use((err, req, res, next) => {
   console.log('Missing CSRF token');
   return false;
 });
+
 
 router(app);
 app.listen(port, (err) => {

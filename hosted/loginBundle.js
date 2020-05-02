@@ -1,10 +1,18 @@
 "use strict";
 
-var accessToken = null;
-
 var handleLogin = function handleLogin(e) {
-  e.preventDefault();
-  sendAjax('GET', $("#loginForm").attr("action"), $("#loginForm").serialize(), redirect);
+  e.preventDefault(); // $.ajax({
+  //     url: $("#loginForm").attr("action"),
+  //     data: $("#loginForm").serialize(),
+  //     success: function (data) {
+  //         console.log(data);
+  //     },
+  //     error: function (xhr, status, error) {
+  //         var messageObj = JSON.parse(xhr.responseText);
+  //         handleError(messageObj.error);
+  //     }
+  // });
+
   return false;
 };
 
@@ -12,19 +20,15 @@ var LoginWindow = function LoginWindow(props) {
   return (/*#__PURE__*/React.createElement("form", {
       id: "loginForm",
       name: "loginForm",
-      onSubmit: handleLogin,
-      action: "/login",
-      method: "GET",
       className: "mainForm"
     }, /*#__PURE__*/React.createElement("h3", null, "Click Here to login with Spotify"), /*#__PURE__*/React.createElement("input", {
       type: "hidden",
       name: "_csrf",
       value: props.csrf
-    }), /*#__PURE__*/React.createElement("input", {
-      className: "formSubmit",
-      type: "submit",
-      value: "Log In"
-    }))
+    }), /*#__PURE__*/React.createElement("a", {
+      id: "loginButton",
+      href: "/login"
+    }, "Login"))
   );
 };
 
@@ -59,31 +63,6 @@ var createLoginWindow = function createLoginWindow(csrf) {
 
 var setup = function setup(csrf) {
   createLoginWindow(csrf); // default view
-  // get accessToken for spotify from the URL and store it.
-
-  var params = getHashParams();
-  accessToken = params.access_token;
-  var myToken = {
-    token: accessToken
-  }; // once token is gotten, redirect to search/homepage
-
-  if (accessToken) {
-    $.ajax({
-      url: '/storeToken',
-      method: 'POST',
-      data: myToken,
-      headers: {
-        'X-CSRF-Token': csrf
-      },
-      success: function success(response) {
-        console.log("Spotify Token Acquired");
-        window.location = response.redirect;
-      },
-      error: function error() {
-        console.log("failure to log in");
-      }
-    });
-  }
 };
 
 var getHashParams = function getHashParams() {

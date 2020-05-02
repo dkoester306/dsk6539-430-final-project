@@ -1,8 +1,18 @@
-let accessToken = null;
+
 const handleLogin = (e) => {
     e.preventDefault();
 
-    sendAjax('GET', $("#loginForm").attr("action"), $("#loginForm").serialize(), redirect);
+    // $.ajax({
+    //     url: $("#loginForm").attr("action"),
+    //     data: $("#loginForm").serialize(),
+    //     success: function (data) {
+    //         console.log(data);
+    //     },
+    //     error: function (xhr, status, error) {
+    //         var messageObj = JSON.parse(xhr.responseText);
+    //         handleError(messageObj.error);
+    //     }
+    // });
     return false;
 };
 
@@ -10,14 +20,10 @@ const handleLogin = (e) => {
 const LoginWindow = (props) => {
     return (
         <form id="loginForm" name="loginForm"
-            onSubmit={handleLogin}
-            action="/login"
-            method="GET"
             className="mainForm">
-
             <h3>Click Here to login with Spotify</h3>
             <input type="hidden" name="_csrf" value={props.csrf} />
-            <input className="formSubmit" type="submit" value="Log In" />
+            <a id="loginButton" href="/login">Login</a>
         </form>
     );
 };
@@ -53,31 +59,7 @@ const createLoginWindow = (csrf) => {
 };
 
 const setup = (csrf) => {
-
     createLoginWindow(csrf); // default view
-    // get accessToken for spotify from the URL and store it.
-    var params = getHashParams();
-    accessToken = params.access_token;
-    let myToken = { token: accessToken };
-
-    // once token is gotten, redirect to search/homepage
-    if (accessToken) {
-        $.ajax({
-            url: '/storeToken',
-            method: 'POST',
-            data: myToken,
-            headers: {
-                'X-CSRF-Token': csrf
-            },
-            success: function (response) {
-                console.log("Spotify Token Acquired");
-                window.location = response.redirect;
-            },
-            error: function () {
-                console.log("failure to log in");
-            }
-        });
-    }
 };
 const getHashParams = () => {
     var hashParams = {};
