@@ -112,11 +112,10 @@ $(document).ready(function () {
 "use strict";
 
 var handleError = function handleError(message) {
-  $("#errorMessage").text(message); //$("#domoMessage").animate({ width: 'toggle' }, 350);
+  $("#errorMessage").text(message);
 };
 
 var redirect = function redirect(response) {
-  //$("#domoMessage").animate({ width: 'hide' }, 350);
   //console.log("response.redirect: "+response.redirect);
   window.location = response.redirect;
 };

@@ -84,7 +84,7 @@ app.use(session({
   store: new RedisStore({
     client: redisClient,
   }),
-  secret: 'Domo Arigato',
+  secret: 'Spotify Rules',
   resave: 'true',
   saveUninitialized: true,
   cookie: {

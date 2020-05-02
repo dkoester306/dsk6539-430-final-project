@@ -23,6 +23,11 @@ var handleSearch = function handleSearch(e) {
   return false;
 };
 
+var handleAddResult = function handleAddResult(e) {
+  e.preventDefault();
+  console.log("handleAddResult: " + "");
+};
+
 var SearchWindow = function SearchWindow(props) {
   return (/*#__PURE__*/React.createElement("form", {
       id: "searchForm",
@@ -54,28 +59,86 @@ var MainPageWindow = function MainPageWindow(props) {
   return (/*#__PURE__*/React.createElement("div", {
       className: "container"
     }, /*#__PURE__*/React.createElement("div", {
-      id: "searchDiv",
       className: "containerContent"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "title-wrapper"
     }, /*#__PURE__*/React.createElement("h3", null, "Search Results")), /*#__PURE__*/React.createElement("div", {
-      id: "playlistDiv",
+      id: "searchDiv"
+    })), /*#__PURE__*/React.createElement("div", {
       className: "containerContent"
-    }, /*#__PURE__*/React.createElement("h3", null, "All Playlists")))
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "title-wrapper"
+    }, /*#__PURE__*/React.createElement("h3", null, "All Playlists")), /*#__PURE__*/React.createElement("div", {
+      id: "playlistDiv"
+    })))
   );
 };
 
 var SearchResultWindow = function SearchResultWindow(props) {
-  if (props.items.length === 0) {
+  if (props.results.items.length === 0) {
     return (/*#__PURE__*/React.createElement("div", {
         className: "searchResultsList"
       }, /*#__PURE__*/React.createElement("h3", {
         className: "emptySearchResults"
       }, "No Results Found"))
     );
-  }
+  } // create all React Components for each result that is found. This one finds the tracks. 
+  // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
 
-  var resultNodes = props.items;
-  console.log(resultNodes);
-  return (/*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", null, "THERE IS NOTHING HERE"))
+
+  var resultNodes = props.results.items.map(function (result) {
+    var allArtists = ""; // combine all the artists into one string for placement in the artist h5
+
+    for (var i = 0; i < result.artists.length; i++) {
+      if (i === result.artists.length - 1) {
+        allArtists += result.artists[i].name;
+        break;
+      }
+
+      allArtists += result.artists[i].name + " & ";
+    }
+
+    return (/*#__PURE__*/React.createElement("div", {
+        id: "resultForm",
+        key: result.id,
+        className: "resultForm"
+      }, /*#__PURE__*/React.createElement("img", {
+        src: result.album.images[2].url,
+        className: "resultPicture",
+        id: "resultImage"
+      }), /*#__PURE__*/React.createElement("div", {
+        className: "songInfo"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "resultTitle",
+        className: "resultInfo"
+      }, result.name)), /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "resultArtist",
+        className: "resultInfo"
+      }, allArtists)), /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "resultAlbum",
+        className: "resultInfo"
+      }, result.album.name))), /*#__PURE__*/React.createElement("div", {
+        className: "spotifyInfo"
+      }, /*#__PURE__*/React.createElement("a", {
+        href: result.href,
+        id: "resultLink",
+        className: "resultInfo"
+      }, "Link"), /*#__PURE__*/React.createElement("input", {
+        className: "resultSubmit",
+        type: "submit",
+        value: "+"
+      })))
+    );
+  });
+  return (/*#__PURE__*/React.createElement("div", {
+      className: "searchResultsList"
+    }, resultNodes)
   );
 };
 
@@ -100,7 +163,6 @@ var createSearchWindow = function createSearchWindow(csrf) {
 var setup = function setup(csrf) {
   createSearchWindow(csrf);
   createMainPageWindow(csrf);
-  createSearchResultWindow(csrf);
 };
 
 var getToken = function getToken() {
@@ -115,11 +177,10 @@ $(document).ready(function () {
 "use strict";
 
 var handleError = function handleError(message) {
-  $("#errorMessage").text(message); //$("#domoMessage").animate({ width: 'toggle' }, 350);
+  $("#errorMessage").text(message);
 };
 
 var redirect = function redirect(response) {
-  //$("#domoMessage").animate({ width: 'hide' }, 350);
   //console.log("response.redirect: "+response.redirect);
   window.location = response.redirect;
 };

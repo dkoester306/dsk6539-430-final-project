@@ -19,7 +19,7 @@ const searchTerm = (req, res) => {
         json: true,
         
     };
-    console.log(options.url);
+    //console.log(options.url);
     
     //console.log("TOKEN: "+account.currentSpotifyToken);
     request.get(options, function (error, response, body) {
