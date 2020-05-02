@@ -68,10 +68,10 @@ const login = (req, res) => {
 // };
 
 const callbackSpotify = (req, res) => {
-  console.log("HERE IN CALLBACK");
   let code = req.query.code || null;
   let state = req.query.state || null;
   let storedState = req.cookies ? req.cookies[state_key] : null;
+  
 
   if (state === null || state !== storedState) {
     console.log("State key is either missing, or statekey is not equal to stored state")
@@ -90,6 +90,8 @@ const callbackSpotify = (req, res) => {
       json: true
     };
 
+    
+
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
 
@@ -102,29 +104,39 @@ const callbackSpotify = (req, res) => {
           json: true
         };
 
-        // use the access token to access the Spotify Web API
-        request.get(options, function (error, response, body) {
-          console.log(body);
-        });
-        res.redirect('/search');
-        
 
-        // we can also pass the token to the browser to make requests from there
-        // res.redirect('/#' +
-        //   querystring.stringify({
-        //     access_token: access_token,
-        //     refresh_token: refresh_token
-        //   }));
+        // use the access token to access the Spotify Web API
+        // request.get(options, function (error, response, body) {
+        //   Account.AccountModel.findByDisplayName(body.display_name, (err, doc) => {
+        //     if (err) {
+        //       return res.status(400).json({ error: "An error occurred" });
+        //     }
+        //     if (!doc) {
+              
+
+        //     }
+        //   });
+        //   
+        // });
+        res.redirect('/search');
+
       } else {
-        // res.redirect('/#' +
-        //   querystring.stringify({
-        //     error: 'invalid_token'
-        //   }));
+        console.log("error in getting spotify info");
       }
     });
+    
+    
+
+    // check if an account of this name already exists
+    //Account.AccountModel.findByDisplayName()
+
   }
   
 };
+
+const makeAccount = (req, res) => {
+  console.log("IN MAKE ACCOUNT");
+}
 
 const getRefreshToken = (req, res) => {
   let authOptions = {
@@ -182,3 +194,4 @@ module.exports.currentSpotifyToken = 'NO_TOKEN';
 module.exports.refreshSpotifyToken = 'NO_REFRESH_TOKEN';
 module.exports.callbackSpotify = callbackSpotify;
 module.exports.getRefreshToken = getRefreshToken;
+module.exports.makeAccount = makeAccount;

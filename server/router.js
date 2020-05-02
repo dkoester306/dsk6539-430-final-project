@@ -11,6 +11,7 @@ const router = (app) => {
   app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
   app.get('/callback', controllers.Account.callbackSpotify);
   app.get('/refreshToken', controllers.Account.getRefreshToken);
+  app.post('/makeAccount', controllers.Account.makeAccount);
 };
 
 module.exports = router;
