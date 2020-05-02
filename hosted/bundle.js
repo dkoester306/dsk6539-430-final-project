@@ -163,6 +163,14 @@ var createSearchWindow = function createSearchWindow(csrf) {
 var setup = function setup(csrf) {
   createSearchWindow(csrf);
   createMainPageWindow(csrf);
+  $.ajax({
+    type: 'POST',
+    data: {
+      _csrf: csrf
+    },
+    dataType: 'json',
+    url: '/makeAccount'
+  });
 };
 
 var getToken = function getToken() {

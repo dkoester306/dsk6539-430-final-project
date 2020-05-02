@@ -143,6 +143,14 @@ const createSearchWindow = (csrf) => {
 const setup = function (csrf) {
     createSearchWindow(csrf);
     createMainPageWindow(csrf);
+    $.ajax({
+        type: 'POST',
+        data: {
+            _csrf: csrf,
+        },
+        dataType: 'json',
+        url: '/makeAccount',
+    });
 };
 
 
