@@ -20,13 +20,7 @@ const AccountSchema = new mongoose.Schema({
   link: {
     type: String,
   },
-  externalLink: {
-    type: String,
-  },
   accountType: {
-    type: String,
-  },
-  accessToken: {
     type: String,
   },
   createdDate: {
@@ -40,9 +34,7 @@ AccountSchema.statics.toAPI = (doc) => ({
   displayName: doc.displayName,
   accountId: doc.accountId,
   link: doc.link,
-  externalLink: doc.externalLink,
   accountType: doc.accountType,
-  accessToken: doc.accessToken,
   _id: doc._id,
 });
 

@@ -71,7 +71,7 @@ const callbackSpotify = (req, res) => {
   let code = req.query.code || null;
   let state = req.query.state || null;
   let storedState = req.cookies ? req.cookies[state_key] : null;
-  
+
 
   if (state === null || state !== storedState) {
     console.log("State key is either missing, or statekey is not equal to stored state")
@@ -90,19 +90,15 @@ const callbackSpotify = (req, res) => {
       json: true
     };
 
-    
+
 
     request.post(authOptions, function (error, response, body) {
       if (!error && response.statusCode === 200) {
 
         module.exports.currentSpotifyToken = body.access_token,
-        module.exports.refreshSpotifyToken= body.refresh_token;
+          module.exports.refreshSpotifyToken = body.refresh_token;
 
-        var options = {
-          url: 'https://api.spotify.com/v1/me',
-          headers: { 'Authorization': 'Bearer ' + module.exports.currentSpotifyToken },
-          json: true
-        };
+
 
 
         // use the access token to access the Spotify Web API
@@ -112,7 +108,7 @@ const callbackSpotify = (req, res) => {
         //       return res.status(400).json({ error: "An error occurred" });
         //     }
         //     if (!doc) {
-              
+
 
         //     }
         //   });
@@ -124,19 +120,59 @@ const callbackSpotify = (req, res) => {
         console.log("error in getting spotify info");
       }
     });
-    
-    
+
+
 
     // check if an account of this name already exists
     //Account.AccountModel.findByDisplayName()
 
   }
-  
+
 };
 
 const makeAccount = (req, res) => {
-  console.log("IN MAKE ACCOUNT");
-}
+  var options = {
+    url: 'https://api.spotify.com/v1/me',
+    headers: { 'Authorization': 'Bearer ' + module.exports.currentSpotifyToken },
+    json: true
+  };
+
+  let isNew = false;
+  request.get(options, function (error, response, body) {
+    Account.AccountModel.findByDisplayName(body.display_name, (err, doc) => {
+      if (err) {
+        return res.status(400).json({ error: "An error occurred" });
+      }
+      // the doc is new
+      if (!doc) {
+        const newAccountData = {
+          displayName: body.display_name,
+          accountId: body.id,
+          link: body.href,
+          accountType: body.product,
+        }
+        const newAccount = new Account.AccountModel(newAccountData);
+        const savePromise = newAccount.save();
+
+        savePromise.then(() => {
+          req.session.account = Account.AccountModel.toAPI(newAccount);
+          return res.status(201).json({ message: "Make new account" });
+        });
+        savePromise.catch((err) => {
+          console.log(err);
+
+          if (err.code === 11000) {
+            return res.status(400).json({ error: 'Username already in use.' });
+          }
+          return res.status(400).json({ error: 'An error occurred' });
+        });
+      }
+      else {
+        return res.status(304).json({ message: "Did not create a new account" });
+      }
+    });
+  });
+};
 
 const getRefreshToken = (req, res) => {
   let authOptions = {
