@@ -1,18 +1,6 @@
 
 const handleLogin = (e) => {
     e.preventDefault();
-
-    // $.ajax({
-    //     url: $("#loginForm").attr("action"),
-    //     data: $("#loginForm").serialize(),
-    //     success: function (data) {
-    //         console.log(data);
-    //     },
-    //     error: function (xhr, status, error) {
-    //         var messageObj = JSON.parse(xhr.responseText);
-    //         handleError(messageObj.error);
-    //     }
-    // });
     return false;
 };
 
@@ -28,27 +16,27 @@ const LoginWindow = (props) => {
     );
 };
 
-const sendWithToken = (type, action, token, data, success) => {
-    if (token == null) {
-        console.log("No access Token");
-        return;
-    }
-    $.ajax({
-        cache: false,
-        type: type,
-        url: action,
-        data: data,
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        dataType: 'json',
-        success: success,
-        error: function (xhr, status, error) {
-            var messageObj = JSON.parse(xhr.responseText);
-            handleError(messageObj.error);
-        }
-    });
-};
+// const sendWithToken = (type, action, token, data, success) => {
+//     if (token == null) {
+//         console.log("No access Token");
+//         return;
+//     }
+//     $.ajax({
+//         cache: false,
+//         type: type,
+//         url: action,
+//         data: data,
+//         headers: {
+//             'Authorization': 'Bearer ' + token
+//         },
+//         dataType: 'json',
+//         success: success,
+//         error: function (xhr, status, error) {
+//             var messageObj = JSON.parse(xhr.responseText);
+//             handleError(messageObj.error);
+//         }
+//     });
+// };
 
 
 const createLoginWindow = (csrf) => {
@@ -75,7 +63,6 @@ const getHashParams = () => {
 
 const getToken = () => {
     sendAjax('GET', '/getToken', null, (result) => {
-        console.log("IN getToken " + result.csrfToken);
         setup(result.csrfToken);
     });
 };

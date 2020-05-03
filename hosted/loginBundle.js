@@ -1,18 +1,7 @@
 "use strict";
 
 var handleLogin = function handleLogin(e) {
-  e.preventDefault(); // $.ajax({
-  //     url: $("#loginForm").attr("action"),
-  //     data: $("#loginForm").serialize(),
-  //     success: function (data) {
-  //         console.log(data);
-  //     },
-  //     error: function (xhr, status, error) {
-  //         var messageObj = JSON.parse(xhr.responseText);
-  //         handleError(messageObj.error);
-  //     }
-  // });
-
+  e.preventDefault();
   return false;
 };
 
@@ -30,30 +19,28 @@ var LoginWindow = function LoginWindow(props) {
       href: "/login"
     }, "Login"))
   );
-};
+}; // const sendWithToken = (type, action, token, data, success) => {
+//     if (token == null) {
+//         console.log("No access Token");
+//         return;
+//     }
+//     $.ajax({
+//         cache: false,
+//         type: type,
+//         url: action,
+//         data: data,
+//         headers: {
+//             'Authorization': 'Bearer ' + token
+//         },
+//         dataType: 'json',
+//         success: success,
+//         error: function (xhr, status, error) {
+//             var messageObj = JSON.parse(xhr.responseText);
+//             handleError(messageObj.error);
+//         }
+//     });
+// };
 
-var sendWithToken = function sendWithToken(type, action, token, data, success) {
-  if (token == null) {
-    console.log("No access Token");
-    return;
-  }
-
-  $.ajax({
-    cache: false,
-    type: type,
-    url: action,
-    data: data,
-    headers: {
-      'Authorization': 'Bearer ' + token
-    },
-    dataType: 'json',
-    success: success,
-    error: function error(xhr, status, _error) {
-      var messageObj = JSON.parse(xhr.responseText);
-      handleError(messageObj.error);
-    }
-  });
-};
 
 var createLoginWindow = function createLoginWindow(csrf) {
   ReactDOM.render( /*#__PURE__*/React.createElement(LoginWindow, {
@@ -80,7 +67,6 @@ var getHashParams = function getHashParams() {
 
 var getToken = function getToken() {
   sendAjax('GET', '/getToken', null, function (result) {
-    console.log("IN getToken " + result.csrfToken);
     setup(result.csrfToken);
   });
 };

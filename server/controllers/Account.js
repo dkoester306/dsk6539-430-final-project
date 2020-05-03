@@ -100,7 +100,6 @@ const callbackSpotify = (req, res) => {
 
 
 
-
         // use the access token to access the Spotify Web API
         // request.get(options, function (error, response, body) {
         //   Account.AccountModel.findByDisplayName(body.display_name, (err, doc) => {
@@ -131,6 +130,16 @@ const callbackSpotify = (req, res) => {
 };
 
 const makeAccount = (req, res) => {
+  //console.log("Spotify Token Status " + module.exports.currentSpotifyToken);
+  if (!req.session.account) {
+    console.log("THERE IS NOT SESSION ACCOUNT");
+  }
+  else if (req.session.account) {
+    console.log("THERE IS AN ACCOUNT PRESENT");
+    return res.status(304).json({ message: "THERE IS AN ACCOUNT PRESENT" })
+  }
+
+
   var options = {
     url: 'https://api.spotify.com/v1/me',
     headers: { 'Authorization': 'Bearer ' + module.exports.currentSpotifyToken },
@@ -141,12 +150,17 @@ const makeAccount = (req, res) => {
   request.get(options, function (error, response, body) {
     Account.AccountModel.findByDisplayName(body.display_name, (err, doc) => {
       if (err) {
+        console.log("SOMETHING HAPPENDED HERE");
         return res.status(400).json({ error: "An error occurred" });
       }
       // the doc is new
       if (!doc) {
+        console.log("NO DOCS WERE FOUND");
+
         const newAccountData = {
           displayName: body.display_name,
+          accessToken: module.exports.currentSpotifyToken,
+          refreshToken: module.exports.refreshSpotifyToken,
           accountId: body.id,
           link: body.href,
           accountType: body.product,
@@ -159,7 +173,7 @@ const makeAccount = (req, res) => {
           return res.status(201).json({ message: "Make new account" });
         });
         savePromise.catch((err) => {
-          console.log(err);
+          console.log("ERROR IN makeAccount Promise!!!! " + err);
 
           if (err.code === 11000) {
             return res.status(400).json({ error: 'Username already in use.' });
@@ -168,34 +182,42 @@ const makeAccount = (req, res) => {
         });
       }
       else {
+        req.session.account = Account.AccountModel.toAPI(doc);
         return res.status(304).json({ message: "Did not create a new account" });
       }
     });
   });
 };
 
-const getRefreshToken = (req, res) => {
+const changeRefreshToken = (req, res) => {
   let authOptions = {
     url: 'https://accounts.spotify.com/api/token',
     headers: { 'Authorization': 'Basic ' + (new Buffer(client_id + ':' + client_secret).toString('base64')) },
     form: {
       grant_type: 'refresh_token',
-      refresh_token: module.exports.refreshSpotifyToken,
+      refresh_token: req.session.account.refreshToken,
     },
     json: true
   };
 
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
-      module.exports.currentSpotifyToken = body.access_token;
-      res.send({ 'access_token': access_token });
+      // find the current account and update the access Token
+      Account.AccountModel.findOneAndUpdate({ displayName: req.session.account.displayName }, { accessToken: body.access_token }, function(err, doc)  {
+        if (error) {
+          return res.status(400).json({ error: "An error occurred while trying to change the access token of your account." });
+        }
+        req.session.account = Account.AccountModel.toAPI(doc);
+        console.log("in refreshToken");
+        console.log(doc);
+        return res.status(201);
+      });
+      return res.status(304).json({ message: "Did not update access token." });
     }
-  })
-};
-
-
-const signup = (request, response) => {
-
+    if (error) {
+      return res.status(400).json({ error: "Something unexpected occurred" });
+    }
+  });
 };
 
 const getToken = (request, response) => {
@@ -209,25 +231,13 @@ const getToken = (request, response) => {
   res.json(csrfToken);
 };
 
-const getHashParams = () => {
-  var hashParams = {};
-  var e,
-    r = /([^&;=]+)=?([^&;]*)/g,
-    q = window.location.hash.substring(1);
-  while ((e = r.exec(q))) {
-    hashParams[e[1]] = decodeURIComponent(e[2]);
-  }
-  return hashParams;
-};
-
 
 module.exports.loginPage = loginPage;
 module.exports.login = login;
 module.exports.logout = logout;
-module.exports.signup = signup;
 module.exports.getToken = getToken;
 module.exports.currentSpotifyToken = 'NO_TOKEN';
 module.exports.refreshSpotifyToken = 'NO_REFRESH_TOKEN';
 module.exports.callbackSpotify = callbackSpotify;
-module.exports.getRefreshToken = getRefreshToken;
+module.exports.changeRefreshToken = changeRefreshToken;
 module.exports.makeAccount = makeAccount;

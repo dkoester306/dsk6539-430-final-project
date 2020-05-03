@@ -13,6 +13,14 @@ const AccountSchema = new mongoose.Schema({
     trim: true,
     unique: true,
   },
+  accessToken: {
+    type: String,
+    required: true,
+  },
+  refreshToken: {
+    type: String,
+    required: true,
+  },
   accountId: {
     type: String,
     trim: true,
@@ -32,6 +40,8 @@ const AccountSchema = new mongoose.Schema({
 AccountSchema.statics.toAPI = (doc) => ({
   // _id is built into your mongo document and is guaranteed to be unique
   displayName: doc.displayName,
+  accessToken: doc.accessToken,
+  refreshToken: doc.refreshToken,
   accountId: doc.accountId,
   link: doc.link,
   accountType: doc.accountType,
@@ -42,16 +52,18 @@ AccountSchema.statics.findByDisplayName = (name, callback) => {
   const search = {
     displayName: name,
   };
+  console.log("Query name is: " + name);
 
   return AccountModel.findOne(search, callback);
 };
+
 
 AccountSchema.statics.authenticate = (name, callback) => {
   AccountModel.findByDisplayName(name, (err, doc) => {
     if (err) {
       return callback(err);
     }
-    if (!doc) {
+    else if (!doc) {
       return callback();
     }
     return callback(null,doc);

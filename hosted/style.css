@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
 html,
 body {
   height: 100%;
@@ -96,6 +97,51 @@ nav:nth-child(1) {
   margin: 1em;
   padding: 1em;
   border-radius: 1em;
+  color: #d1d1d1;
+  font-family: 'Poppins', sans-serif;
+  
+}
+#searchForm{
+  min-width: 100%;
+}
+
+
+
+#navParent{
+  display: grid;
+  grid-template-columns: 40% 45% 8% 4% 1%;
+}
+
+.containerContent h5{
+  font-weight: 400;
+}
+
+#logoutDiv{
+  background-color: #292929;
+  text-align: center;
+}
+
+#logoutDiv a{
+  float: inline-start;
+  text-align: center;
+}
+
+
+#logoutButton:visited {
+  color: #c1ffb9;
+  text-decoration: none;
+  
+}
+#logoutButton:link {
+  color: #ffffff;
+  text-decoration: none;
+}
+#logoutButton:hover {
+  color: #ffffff;
+  text-decoration: underline;
+}
+#logoutButton:active {
+  color: #ffffff;
 }
 
 .title-wrapper {
@@ -118,6 +164,7 @@ nav:nth-child(1) {
   padding: 1em;
   height: 100%;
   overflow: scroll;
+  overflow-x: hidden;
 }
 
 .resultForm {
@@ -149,12 +196,13 @@ nav:nth-child(1) {
 }
 
 #searchDiv {
-  overflow: hidden;
+  max-height: 87%;
 }
 
 .songInfo {
   display: grid;
-  grid-template-columns: 33% 33% 33%;
+  grid-template-columns: 40% 23% 36%;
+  font-weight: 300;
   /* flex-direction: row;
     justify-content: flex-start;
     flex-grow: 1;

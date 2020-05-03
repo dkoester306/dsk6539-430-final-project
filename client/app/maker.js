@@ -10,7 +10,7 @@ const handleSearch = (e) => {
         data: newData,
         dataType: 'json',
         success: function (data) {
-            //console.log(data.tracks.items);
+            console.log(data.tracks.items);
             loadSearchResults(data);
         },
         error: function (xhr, status, error) {
@@ -21,11 +21,42 @@ const handleSearch = (e) => {
     return false;
 }
 
+// When clicking on a playlist div,
+// it will read the title of it and change the page for the playlist
+// Will display the playlist entryies inside of the playlist
+const displayPlaylistContent = (e) => {
+    e.preventDefault();
+
+};
+
+const handleRefreshToken = (e) => {
+    e.preventDefault();
+
+    sendAjax('POST', '/refreshToken', $("#searchForm").serialize(), function (data) {
+        console.log("Refresh Token as been updated in your account.");
+        
+    });
+    return false;
+};
+
+const handleNewPlaylist = (e) => {
+    e.preventDefault();
+
+    sendAjax('POST', '/addPlaylist', $("#searchForm").serialize(), function (data) {
+        console.log("MAKE NEW PLAYLIST");
+        loadPlaylistsFromServer();
+    });
+    return false;
+};
+
+// should only run if the user has currently selected a playlist
+// (A user must click playlistDiv and have it opened in the panel in order for results to be added)
+// 
 const handleAddResult = (e) => {
     e.preventDefault();
-    console.log("handleAddResult: " + "");
-}
 
+    
+}
 
 
 const SearchWindow = (props) => {
@@ -36,10 +67,25 @@ const SearchWindow = (props) => {
             method='GET'
             className="searchForm"
         >
-            <label htmlFor="q">Song Search </label>
-            <input id="searchName" type="text" name="q" placeholder="Search Term" />
-            <input type="hidden" name="_csrf" values={props.csrf} />
-            <input className="makeSearchSubmit" type="submit" value="Search Term" />
+            <div id="navParent">
+                <div className="navContainer">
+                    <label htmlFor="q">Song Search </label>
+                    <input id="searchName" type="text" name="q" placeholder="Search Term" />
+                    <input className="makeSearchSubmit" type="submit" value="Search Term" />
+                </div>
+                <div id="newPlaylistInput" className="navContainer">
+                    <label htmlFor="playlistName">Playlist Name </label>
+                    <input id="newPlaylistName" type="text" name="playlistName" placeholder="New Playlist Name" />
+                    <button onClick={handleNewPlaylist}>Add Playlist</button>
+                </div>
+                <div className="navContainer">
+                    <button onClick={handleRefreshToken} id="refreshTokenButton">Refresh Token</button>
+                </div>
+                <div id="logoutDiv" className="navContainer">
+                    <a href="/logout" id="logoutButton">Logout</a>
+                </div>
+                <input type="hidden" name="_csrf" value={props.csrf} />
+            </div>
         </form>
     );
 };
@@ -52,30 +98,57 @@ const MainPageWindow = (props) => {
                 <div className="title-wrapper">
                     <h3>Search Results</h3>
                 </div>
-                <div id="searchDiv"></div>
+                <div id="searchDiv">
+
+                </div>
             </div>
             <div className="containerContent">
                 <div className="title-wrapper">
                     <h3>All Playlists</h3>
                 </div>
                 <div id="playlistDiv">
-
+                    
                 </div>
             </div>
         </div>
     );
 }
 
-
-const SearchResultWindow = function (props) {
-    if (props.results.items.length === 0) {
+const PlaylistWindow = function (props) {
+    if (props.playlists.length === 0) {
         return (
             <div className="searchResultsList">
-                <h3 className="emptySearchResults">No Results Found</h3>
+                <h3 className="emptySearchResults">Include at least 1 character in playlist name field!</h3>
             </div>
         );
     }
+    
+    const playlistNodes = props.playlists.map(function (playlist) {
+        return (
+            // If
+            <div id="playlistRow" key={playlist.name} className="playlistRow">
+                <div class="playlistDiv" onClick={displayPlaylistContent}>
+                    <h2 id="playlistTitle" class="playlistDiv">{playlist.name}</h2>
+                </div>
+            </div>
+        );
+    });
+    return (
+        <div className="playlistResultsList">
+            {playlistNodes}
+      </div>  
+    );
+}
 
+
+const SearchResultWindow = function (props) {
+    if (!props.results) {
+        return (
+            <div className="searchResultsList">
+                <h3 className="emptySearchResults">Include at least 1 character in search field!</h3>
+            </div>
+        );
+    }
     // create all React Components for each result that is found. This one finds the tracks. 
     // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
     const resultNodes = props.results.items.map(function (result) {
@@ -90,7 +163,9 @@ const SearchResultWindow = function (props) {
         }
         return (
             <div id="resultForm" key={result.id} className="resultForm">
+                <a href={result.external_urls.spotify}>
                     <img src={result.album.images[2].url} className="resultPicture" id="resultImage" />
+                </a>
                 <div className="songInfo">
                     <div className="wordContainer">
                         <h5 id="resultTitle" className="resultInfo">{result.name}</h5>
@@ -103,8 +178,7 @@ const SearchResultWindow = function (props) {
                     </div>
                 </div>
                 <div className="spotifyInfo">
-                    <a href={result.href} id="resultLink" className="resultInfo">Link</a>
-                    <input className="resultSubmit" type="submit" value="+" />
+                    <button className="resultSubmit" onClick={handleAddResult}>+</button>
                 </div>
             </div>
         );
@@ -116,12 +190,23 @@ const SearchResultWindow = function (props) {
     );
 };
 
+
+
+const loadPlaylistsFromServer = () => {
+    sendAjax('GET', '/getPlaylists', null, (data) => {
+        ReactDOM.render(
+            <PlaylistWindow playlists={data.playlists} />,
+            document.querySelector("#playlistDiv")
+        );
+    });
+};
+
+
 const loadSearchResults = (data) => {
     ReactDOM.render(
         <SearchResultWindow results={data.tracks} />,
         document.querySelector('#searchDiv')
     );
-
 };
 
 const createMainPageWindow = (csrf) => {
@@ -143,6 +228,7 @@ const createSearchWindow = (csrf) => {
 const setup = function (csrf) {
     createSearchWindow(csrf);
     createMainPageWindow(csrf);
+
     $.ajax({
         type: 'POST',
         data: {
@@ -150,6 +236,10 @@ const setup = function (csrf) {
         },
         dataType: 'json',
         url: '/makeAccount',
+        success: function (data) {
+            console.log("IN setup");
+            loadPlaylistsFromServer();
+        },
     });
 };
 
