@@ -13,25 +13,11 @@ const url = require('url');
 const redis = require('redis');
 const csrf = require('csurf');
 
-const querystring = require('querystring');
-
-var client_id = '6211d589dd89434aba2398d090ccb59d'; // Your client id
-var client_secret = '2deaa5a045144a6b87fa4a275b24a0ad'; // Your secret
-var redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
 const dbURL = process.env.MONGODB_URI || 'mongodb://localhost/DanielPlaylists';
 
-var generateRandomString = function (length) {
-  var text = '';
-  var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
-  for (var i = 0; i < length; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-};
 
 // Setup mongoose options to use newer functionality
 const mongooseOptions = {
@@ -48,8 +34,8 @@ mongoose.connect(dbURL, mongooseOptions, (err) => {
 
 let redisURL = {
   // you will need to folow the Setting Up Redis for Local Use" Instructions
-  hostname: "redis-13482.c15.us-east-1-2.ec2.cloud.redislabs.com",
-  port: "13482",
+  hostname: 'redis-13482.c15.us-east-1-2.ec2.cloud.redislabs.com',
+  port: '13482',
 };
 
 let redisPASS = 'FxHWUUUbUL0PneFC7QdRf1NiNbB4ZVSF';
@@ -59,7 +45,7 @@ if (process.env.REDISCLOUD_URL) {
   redisURL = url.parse(process.env.REDISCLOUD_URL);
   [, redisPASS] = redisURL.auth.split(':');
 }
-let redisClient = redis.createClient({
+const redisClient = redis.createClient({
   host: redisURL.hostname,
   port: redisURL.port,
   password: redisPASS,
@@ -68,7 +54,6 @@ let redisClient = redis.createClient({
 
 const router = require('./router.js');
 
-var stateKey = 'spotify_auth_state';
 
 const app = express();
 app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
@@ -95,7 +80,6 @@ app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));
 app.set('view engine', 'handlebars');
 app.set('views', `${__dirname}/../views`);
 app.use(cookieParser());
-
 
 
 // !!!!!!!!!!!!- NOTICE !!!!!!!!!!!!

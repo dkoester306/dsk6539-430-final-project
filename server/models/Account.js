@@ -60,7 +60,7 @@ AccountSchema.statics.findByDisplayName = (name, callback) => {
   const search = {
     displayName: name,
   };
-  console.log("Query name is: " + name);
+  // console.log(`Query name is: ${name}`);
 
   return AccountModel.findOne(search, callback);
 };
@@ -71,15 +71,12 @@ AccountSchema.statics.authenticate = (name, callback) => {
     if (err) {
       return callback(err);
     }
-    else if (!doc) {
+    if (!doc) {
       return callback();
     }
-    return callback(null,doc);
+    return callback(null, doc);
   });
 };
-
-
-
 
 
 AccountModel = mongoose.model('Account', AccountSchema);
