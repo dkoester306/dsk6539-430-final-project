@@ -31,7 +31,8 @@ var displayPlaylistContent = function displayPlaylistContent(e) {
 };
 
 var handleRefreshToken = function handleRefreshToken(e) {
-  e.preventDefault();
+  e.preventDefault(); //console.log($("#searchForm").serialize());
+
   sendAjax('POST', '/refreshToken', $("#searchForm").serialize(), function (data) {
     console.log("Refresh Token as been updated in your account.");
   });
@@ -41,8 +42,8 @@ var handleRefreshToken = function handleRefreshToken(e) {
 var handleNewPlaylist = function handleNewPlaylist(e) {
   e.preventDefault();
   sendAjax('POST', '/addPlaylist', $("#searchForm").serialize(), function (data) {
-    console.log("MAKE NEW PLAYLIST");
-    loadPlaylistsFromServer();
+    //console.log(data);
+    loadPlaylistsFromServer(data);
   });
   return false;
 }; // should only run if the user has currently selected a playlist
@@ -50,8 +51,25 @@ var handleNewPlaylist = function handleNewPlaylist(e) {
 // 
 
 
-var handleAddResult = function handleAddResult(e) {
+var handleAddResultToPlaylist = function handleAddResultToPlaylist(e, newData) {
   e.preventDefault();
+  var string = "&title=" + newData.title + "&artist=" + newData.artist + "&album=" + newData.album + "&link=" + newData.link + "&image=" + newData.image;
+  var trim = string.split(' ').join('+');
+  sendAjax('POST', '/addEntry', $('#playlistEntriesList').serialize() + trim, function (data) {});
+}; // will change the currentPlaylist part of the document inside the current account.
+// Will not change anything if the current playlist for the account is the same as the sent data ()
+
+
+var handleChangeCurrentPlaylist = function handleChangeCurrentPlaylist(e, pName) {
+  e.preventDefault();
+  var replaced = pName.split(' ').join('+');
+  var newData = $('#playlistResultsList').serialize() + "&playlistName=" + replaced; //console.log($('#playlistResultsList').serialize());
+
+  sendAjax('POST', '/changePlaylist', newData, function (data) {
+    // load new page with entries inside
+    loadPlaylistEntries(data);
+  });
+  return false;
 };
 
 var SearchWindow = function SearchWindow(props) {
@@ -125,7 +143,72 @@ var MainPageWindow = function MainPageWindow(props) {
       id: "playlistDiv"
     })))
   );
-};
+}; // displays all the contents of a particular playlist
+
+
+var PlaylistEntriesWindow = function PlaylistEntriesWindow(props) {
+  if (props.entries.length === 0) {
+    return (/*#__PURE__*/React.createElement("form", {
+        className: "searchResultsList",
+        id: "playlistEntriesList"
+      }, /*#__PURE__*/React.createElement("input", {
+        type: "hidden",
+        name: "_csrf",
+        value: props.csrf
+      }), /*#__PURE__*/React.createElement("h3", {
+        className: "emptySearchResults"
+      }, "No Contents in Playlist"))
+    );
+  }
+
+  var entriesNodes = props.entries.map(function (entry) {
+    /*#__PURE__*/
+    React.createElement("div", {
+      id: "entryForm",
+      className: "resultForm"
+    }, /*#__PURE__*/React.createElement("a", {
+      href: result.external_urls.spotify
+    }, /*#__PURE__*/React.createElement("img", {
+      src: result.album.images[2].url,
+      className: "resultPicture",
+      id: "entryImage"
+    })), /*#__PURE__*/React.createElement("div", {
+      className: "songInfo"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "wordContainer"
+    }, /*#__PURE__*/React.createElement("h5", {
+      id: "entryTitle",
+      className: "resultInfo"
+    }, result.name)), /*#__PURE__*/React.createElement("div", {
+      className: "wordContainer"
+    }, /*#__PURE__*/React.createElement("h5", {
+      id: "entryArtist",
+      className: "resultInfo"
+    }, allArtists)), /*#__PURE__*/React.createElement("div", {
+      className: "wordContainer"
+    }, /*#__PURE__*/React.createElement("h5", {
+      id: "entryAlbum",
+      className: "resultInfo"
+    }, result.album.name))), /*#__PURE__*/React.createElement("div", {
+      className: "spotifyInfo"
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "resultSubmit",
+      onClick: handleAddResult
+    }, "+")));
+  });
+  return (/*#__PURE__*/React.createElement("form", {
+      className: "searchResultsList",
+      id: "playlistEntriesList"
+    }, /*#__PURE__*/React.createElement("h4", {
+      id: "playlistName"
+    }, props.playlistName), /*#__PURE__*/React.createElement("input", {
+      type: "hidden",
+      name: "_csrf",
+      value: props.csrf
+    }), entriesNodes)
+  );
+}; // displays the window showing All PLAYLISTS
+
 
 var PlaylistWindow = function PlaylistWindow(props) {
   if (props.playlists.length === 0) {
@@ -142,23 +225,26 @@ var PlaylistWindow = function PlaylistWindow(props) {
       /*#__PURE__*/
       // If
       React.createElement("div", {
-        id: "playlistRow",
-        key: playlist.name,
-        className: "playlistRow"
-      }, /*#__PURE__*/React.createElement("div", {
-        "class": "playlistDiv",
-        onClick: displayPlaylistContent
-      }, /*#__PURE__*/React.createElement("h2", {
-        id: "playlistTitle",
-        "class": "playlistDiv"
-      }, playlist.name)))
+        className: "playlistWrapper"
+      }, /*#__PURE__*/React.createElement("button", {
+        className: "playlistTitleButton",
+        onClick: function onClick(e) {
+          return handleChangeCurrentPlaylist(e, playlist.name);
+        },
+        value: playlist.name
+      }, playlist.name))
     );
   });
-  return (/*#__PURE__*/React.createElement("div", {
-      className: "playlistResultsList"
-    }, playlistNodes)
+  return (/*#__PURE__*/React.createElement("form", {
+      id: "playlistResultsList"
+    }, /*#__PURE__*/React.createElement("input", {
+      type: "hidden",
+      name: "_csrf",
+      value: props.csrf
+    }), playlistNodes)
   );
-};
+}; // Displays the search results when using the Song Search
+
 
 var SearchResultWindow = function SearchResultWindow(props) {
   if (!props.results) {
@@ -168,9 +254,11 @@ var SearchResultWindow = function SearchResultWindow(props) {
         className: "emptySearchResults"
       }, "Include at least 1 character in search field!"))
     );
-  } // create all React Components for each result that is found. This one finds the tracks. 
-  // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
+  } // create the option tags for the select
 
+
+  var optionNodes = props.results.items.map(function (result) {}); // create all React Components for each result that is found. This one finds the tracks. 
+  // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
 
   var resultNodes = props.results.items.map(function (result) {
     var allArtists = ""; // combine all the artists into one string for placement in the artist h5
@@ -215,7 +303,15 @@ var SearchResultWindow = function SearchResultWindow(props) {
         className: "spotifyInfo"
       }, /*#__PURE__*/React.createElement("button", {
         className: "resultSubmit",
-        onClick: handleAddResult
+        onClick: function onClick(e) {
+          return handleAddResultToPlaylist(e, {
+            title: result.name,
+            artist: allArtists,
+            album: result.album.name,
+            link: result.external_urls.spotify,
+            image: result.album.images[2].url
+          });
+        }
       }, "+")))
     );
   });
@@ -225,10 +321,34 @@ var SearchResultWindow = function SearchResultWindow(props) {
   );
 };
 
-var loadPlaylistsFromServer = function loadPlaylistsFromServer() {
+var loadPlaylistEntries = function loadPlaylistEntries(newData) {
+  $.ajax({
+    type: 'GET',
+    url: '/getOnePlaylist',
+    data: {
+      "playlistName": newData.playlistName,
+      "csrf": newData._csrf
+    },
+    success: function success(data) {
+      console.log(data);
+      ReactDOM.render( /*#__PURE__*/React.createElement(PlaylistEntriesWindow, {
+        csrf: data.csrf,
+        entries: data.playlist.tracks,
+        newData: newData
+      }), document.querySelector('#playlistDiv'));
+    },
+    error: function error(xhr, status, _error2) {
+      var messageObj = JSON.parse(xhr.responseText);
+      handleError(messageObj.error);
+    }
+  });
+};
+
+var loadPlaylistsFromServer = function loadPlaylistsFromServer(csrf) {
   sendAjax('GET', '/getPlaylists', null, function (data) {
     ReactDOM.render( /*#__PURE__*/React.createElement(PlaylistWindow, {
-      playlists: data.playlists
+      playlists: data.playlists,
+      csrf: csrf
     }), document.querySelector("#playlistDiv"));
   });
 };
@@ -263,7 +383,7 @@ var setup = function setup(csrf) {
     url: '/makeAccount',
     success: function success(data) {
       console.log("IN setup");
-      loadPlaylistsFromServer();
+      loadPlaylistsFromServer(csrf);
     }
   });
 };

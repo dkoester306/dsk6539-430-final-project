@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap");
 html,
 body {
   height: 100%;
@@ -98,39 +98,57 @@ nav:nth-child(1) {
   padding: 1em;
   border-radius: 1em;
   color: #d1d1d1;
-  font-family: 'Poppins', sans-serif;
-  
+  font-family: "Poppins", sans-serif;
 }
-#searchForm{
+#searchForm {
   min-width: 100%;
 }
 
+.playlistTitleButton {
+  text-decoration: none;
+  display: inline-block;
+  background-color: #292929; /* Green */
+  border: 2px solid #d1d1d1;
+  border-radius: 1em;
+  color: white;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 30px;
+  min-width: 100%;
+  text-align: left;
+  padding: 10px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.playlistTitleButton:hover{
+  background-color: #4e4e4e;
+}
 
 
-#navParent{
+
+#navParent {
   display: grid;
   grid-template-columns: 40% 45% 8% 4% 1%;
 }
 
-.containerContent h5{
+.containerContent h5 {
   font-weight: 400;
 }
 
-#logoutDiv{
+#logoutDiv {
   background-color: #292929;
   text-align: center;
 }
 
-#logoutDiv a{
+#logoutDiv a {
   float: inline-start;
   text-align: center;
 }
 
-
 #logoutButton:visited {
   color: #c1ffb9;
   text-decoration: none;
-  
 }
 #logoutButton:link {
   color: #ffffff;

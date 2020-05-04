@@ -24,12 +24,19 @@ const AccountSchema = new mongoose.Schema({
   accountId: {
     type: String,
     trim: true,
+    required: true,
   },
   link: {
     type: String,
+    required: true,
   },
   accountType: {
     type: String,
+    required: true,
+  },
+  currentPlaylist: {
+    type: String,
+    required: true,
   },
   createdDate: {
     type: Date,
@@ -45,6 +52,7 @@ AccountSchema.statics.toAPI = (doc) => ({
   accountId: doc.accountId,
   link: doc.link,
   accountType: doc.accountType,
+  currentPlaylist: doc.currentPlaylist,
   _id: doc._id,
 });
 

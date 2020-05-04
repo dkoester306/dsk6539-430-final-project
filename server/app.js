@@ -68,7 +68,6 @@ let redisClient = redis.createClient({
 
 const router = require('./router.js');
 
-var stateKey = 'spotify_auth_state';
 
 const app = express();
 app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted/`)));
@@ -88,7 +87,7 @@ app.use(session({
   resave: 'true',
   saveUninitialized: true,
   cookie: {
-    httpOnly: true,
+    maxAge:60000,
   },
 }));
 app.engine('handlebars', expressHandlebars({ defaultLayout: 'main' }));

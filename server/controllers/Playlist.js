@@ -6,14 +6,7 @@ const request = require('request');
 const { Playlist } = models;
 
 const searchPage = (req, res) => {
-    // Playlist.PlaylistModel.findByOwner(req.session.account._id, (err, docs) => {
-    //     if (err) {
-    //         console.log(err);
-    //         return res.status(400).json({ error: "An error occurred loading the search page" });
-    //     }
-        
-    // });
-    res.render('search', { csrfToken: req.csrfToken()});
+    res.render('search', { csrfToken: req.csrfToken() });
 };
 
 const searchTerm = (req, res) => {
@@ -53,6 +46,7 @@ const searchTerm = (req, res) => {
 }
 
 const makePlaylist = (req, res) => {
+
     // creates an playlist with no tracks
     if (!req.body.playlistName) {
         return res.status(400).json({ error: "Playlist name field must be filled out" });
@@ -68,11 +62,11 @@ const makePlaylist = (req, res) => {
                 tracks: [],
                 owner: req.session.account._id,
             };
-        
+
             const newPlaylist = new Playlist.PlaylistModel(playlistData);
             const playlistPromise = newPlaylist.save();
-        
-            playlistPromise.then(() => res.status(201).json({ message: "Make new playlist" }));
+
+            playlistPromise.then(() => res.status(201).json({ message: "Make new playlist", _csrf: req.body._csrf }));
             playlistPromise.catch((err) => {
                 if (err.code === 11000) {
                     return res.status(400).json({ error: "Playlist already exists" });
@@ -94,13 +88,33 @@ const getPlaylists = (req, res) => {
     });
 };
 
+
+const getOnePlaylist = (req, res) => {   
+    console.log(req.query);
+    if (req.query.playlistName !== "NONE") {
+        
+        return Playlist.PlaylistModel.findByName(req.query.playlistName, (err, doc) => {
+            if (err) {
+                console.log(err);
+                return res.status(400).json({ error: "An error occurred retrieving the playlist" });
+            }
+            return res.json({ playlist: doc, csrf: req.query.csrf});
+        });
+    }
+    return res.status(400).status({ error: "There must be a selected playlist before showing it." });
+}
+
 const removePlaylist = (request, response) => {
     // - check if 'tracks' array is empty in PlaylistSchema
 };
 
-const makePlaylistEntry = (request, response) => {
+const makePlaylistEntry = (req, res) => {
     // this function needs to be able to
     // - Find the target playlist to add to
+    console.log(req.body);
+    Playlist.PlaylistModel.findOneAndUpdate(req.session.account.currentPlaylist, (err, doc) => {
+        
+    });
 }
 
 const removePlaylistEntry = (request, response) => {
@@ -113,3 +127,6 @@ module.exports.searchPage = searchPage;
 module.exports.searchTerm = searchTerm;
 module.exports.makePlaylist = makePlaylist;
 module.exports.getPlaylists = getPlaylists;
+module.exports.getOnePlaylist = getOnePlaylist;
+
+module.exports.makePlaylistEntry = makePlaylistEntry;

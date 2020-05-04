@@ -136,6 +136,15 @@ const makeAccount = (req, res) => {
   }
   else if (req.session.account) {
     console.log("THERE IS AN ACCOUNT PRESENT");
+    Account.AccountModel.findByDisplayName(req.session.account.displayName, (err, doc) => {
+      if (err) {
+        console.log("GOT error here");
+      }
+      //console.log(doc);
+      //console.log(req.session.account);
+      req.session.account = Account.AccountModel.toAPI(doc);
+      //console.log(req.session.account);
+    });
     return res.status(304).json({ message: "THERE IS AN ACCOUNT PRESENT" })
   }
 
@@ -157,14 +166,16 @@ const makeAccount = (req, res) => {
       if (!doc) {
         console.log("NO DOCS WERE FOUND");
 
-        const newAccountData = {
+        let newAccountData = {
           displayName: body.display_name,
           accessToken: module.exports.currentSpotifyToken,
           refreshToken: module.exports.refreshSpotifyToken,
           accountId: body.id,
           link: body.href,
           accountType: body.product,
-        }
+          currentPlaylist: "NONE",
+        };
+
         const newAccount = new Account.AccountModel(newAccountData);
         const savePromise = newAccount.save();
 
@@ -181,8 +192,9 @@ const makeAccount = (req, res) => {
           return res.status(400).json({ error: 'An error occurred' });
         });
       }
-      else {
-        req.session.account = Account.AccountModel.toAPI(doc);
+      else if (doc) {
+        console.log(doc);
+        
         return res.status(304).json({ message: "Did not create a new account" });
       }
     });
@@ -203,12 +215,13 @@ const changeRefreshToken = (req, res) => {
   request.post(authOptions, function (error, response, body) {
     if (!error && response.statusCode === 200) {
       // find the current account and update the access Token
-      Account.AccountModel.findOneAndUpdate({ displayName: req.session.account.displayName }, { accessToken: body.access_token }, function(err, doc)  {
-        if (error) {
+      console.log(req.session.account);
+      Account.AccountModel.findOneAndUpdate({ displayName: req.session.account.displayName }, { accessToken: body.access_token }, function (err, doc) {
+        if (err) {
           return res.status(400).json({ error: "An error occurred while trying to change the access token of your account." });
         }
         req.session.account = Account.AccountModel.toAPI(doc);
-        console.log("in refreshToken");
+        //console.log(req.session.account);
         console.log(doc);
         return res.status(201);
       });
@@ -218,6 +231,29 @@ const changeRefreshToken = (req, res) => {
       return res.status(400).json({ error: "Something unexpected occurred" });
     }
   });
+};
+
+const changeCurrentPlaylist = (req, res) => {
+  Account.AccountModel.findOneAndUpdate({ displayName: req.session.account.displayName }, { currentPlaylist: req.body.playlistName }, { new: true }, function (err, doc) {
+    if (err) {
+      return res.status(400).json({ error: "An error occurred when trying to change the current playlist" });
+    }
+    console.log(req.session.account);
+    req.session.account = Account.AccountModel.toAPI(doc);
+  });
+  return res.status(201).json({ _csrf: req.body._csrf, playlistName: req.body.playlistName });
+};
+
+const setCurrentPlaylistToNone = (req, res) => {
+  Account.AccountModel.findOneAndUpdate({ displayName: req.session.account.displayName }, { currentPlaylist: "NONE" }, { new: true }, function (err, doc) {
+    if (err) {
+      return res.status(400).json({ error: "An error occurred when trying to change the current playlist" });
+    }
+    req.session.account = Account.AccountModel.toAPI(doc);
+
+  });
+  //console.log(doc);
+  return res.status(201).json({ message: "chaged to None" });
 };
 
 const getToken = (request, response) => {
@@ -241,3 +277,5 @@ module.exports.refreshSpotifyToken = 'NO_REFRESH_TOKEN';
 module.exports.callbackSpotify = callbackSpotify;
 module.exports.changeRefreshToken = changeRefreshToken;
 module.exports.makeAccount = makeAccount;
+module.exports.changeCurrentPlaylist = changeCurrentPlaylist;
+module.exports.setCurrentPlaylistToNone = setCurrentPlaylistToNone;
