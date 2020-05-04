@@ -136,6 +136,7 @@ const makeAccount = (req, res) => {
   }
   else if (req.session.account) {
     console.log("THERE IS AN ACCOUNT PRESENT");
+    console.log(req.session.account.displayName);
     Account.AccountModel.findByDisplayName(req.session.account.displayName, (err, doc) => {
       if (err) {
         console.log("GOT error here");
@@ -143,11 +144,19 @@ const makeAccount = (req, res) => {
       //console.log(doc);
       //console.log(req.session.account);
       req.session.account = Account.AccountModel.toAPI(doc);
+      req.session.save(function (err) {
+        if (err) {
+          console.log(err);
+        }
+        console.log("IN SAVE");
+        //return res.json(req.session.account);
+      });
       //console.log(req.session.account);
     });
-    return res.status(304).json({ message: "THERE IS AN ACCOUNT PRESENT" })
+    return res.status(304).json({ message: "THERE IS AN ACCOUNT PRESENT" });
   }
 
+  console.log("PAST IF STATEMENTS");
 
   var options = {
     url: 'https://api.spotify.com/v1/me',
@@ -221,8 +230,11 @@ const changeRefreshToken = (req, res) => {
           return res.status(400).json({ error: "An error occurred while trying to change the access token of your account." });
         }
         req.session.account = Account.AccountModel.toAPI(doc);
-        //console.log(req.session.account);
-        console.log(doc);
+        req.session.save(function (err) {
+          if (err) {
+            console.log(err);
+          }
+        });    
         return res.status(201);
       });
       return res.status(304).json({ message: "Did not update access token." });
@@ -240,6 +252,12 @@ const changeCurrentPlaylist = (req, res) => {
     }
     console.log(req.session.account);
     req.session.account = Account.AccountModel.toAPI(doc);
+    req.session.save(function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
   });
   return res.status(201).json({ _csrf: req.body._csrf, playlistName: req.body.playlistName });
 };
@@ -250,6 +268,11 @@ const setCurrentPlaylistToNone = (req, res) => {
       return res.status(400).json({ error: "An error occurred when trying to change the current playlist" });
     }
     req.session.account = Account.AccountModel.toAPI(doc);
+    req.session.save(function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
 
   });
   //console.log(doc);

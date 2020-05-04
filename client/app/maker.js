@@ -10,7 +10,7 @@ const handleSearch = (e) => {
         data: newData,
         dataType: 'json',
         success: function (data) {
-            console.log(data.tracks.items);
+            //console.log(data.tracks.items);
             loadSearchResults(data);
         },
         error: function (xhr, status, error) {
@@ -35,7 +35,7 @@ const handleRefreshToken = (e) => {
 
     //console.log($("#searchForm").serialize());
     sendAjax('POST', '/refreshToken', $("#searchForm").serialize(), function (data) {
-        console.log("Refresh Token as been updated in your account.");
+        //console.log("Refresh Token as been updated in your account.");
 
     });
     return false;
@@ -44,7 +44,7 @@ const handleRefreshToken = (e) => {
 const handleNewPlaylist = (e) => {
     e.preventDefault();
 
-    
+
 
     sendAjax('POST', '/addPlaylist', $("#searchForm").serialize(), function (data) {
         //console.log(data);
@@ -56,14 +56,18 @@ const handleNewPlaylist = (e) => {
 // should only run if the user has currently selected a playlist
 // (A user must click playlistDiv and have it opened in the panel in order for results to be added)
 // 
-const handleAddResultToPlaylist = (e,newData) => {
+const handleAddResultToPlaylist = (e, newData) => {
     e.preventDefault();
 
     const string = "&title=" + newData.title + "&artist=" + newData.artist + "&album=" + newData.album + "&link=" + newData.link + "&image=" + newData.image;
     const trim = string.split(' ').join('+');
+
+    console.log($('#playlistEntriesList').serialize() + trim);
     
-    sendAjax('POST', '/addEntry', $('#playlistEntriesList').serialize()+trim, function (data) {
-        
+
+    sendAjax('POST', '/addEntry', $('#playlistEntriesList').serialize() + trim, function (data) {
+        //console.log("HERE");
+        loadPlaylistEntries(data);
     });
 }
 
@@ -78,6 +82,7 @@ const handleChangeCurrentPlaylist = (e, pName) => {
 
     sendAjax('POST', '/changePlaylist', newData, function (data) {
         // load new page with entries inside
+        //console.log(data);
         loadPlaylistEntries(data);
     });
     return false;
@@ -142,40 +147,40 @@ const MainPageWindow = (props) => {
 
 // displays all the contents of a particular playlist
 const PlaylistEntriesWindow = (props) => {
-    if (props.entries.length === 0) {
+    if (props.data.tracks.length === 0) {
         return (
             <form className="searchResultsList" id="playlistEntriesList">
-                <input type="hidden" name="_csrf" value={props.csrf} />
+                <input type="hidden" name="_csrf" value={props.data._csrf} />
                 <h3 className="emptySearchResults">No Contents in Playlist</h3>
             </form>
         );
     }
+    const entriesNodes = props.data.tracks.map(function (entry) {
+        console.log(entry.title);
+        return (
+            <div id="entryForm" className="resultForm">
+                <a href={entry.link}>
+                    <img src={entry.img} className="resultPicture" id="entryImage" />
+                </a>
+                <div className="songInfo">
+                    <div className="wordContainer">
+                        <h5 id="entryTitle" className="resultInfo">{entry.title}</h5>
+                    </div>
+                    <div className="wordContainer">
+                        <h5 id="entryArtist" className="resultInfo">{entry.artist}</h5>
+                    </div>
+                    <div className="wordContainer">
+                        <h5 id="entryAlbum" className="resultInfo">{entry.album}</h5>
+                    </div>
+                </div>
+            </div>
+        );
 
-    const entriesNodes = props.entries.map(function (entry) {
-        <div id="entryForm" className="resultForm">
-            <a href={result.external_urls.spotify}>
-                <img src={result.album.images[2].url} className="resultPicture" id="entryImage" />
-            </a>
-            <div className="songInfo">
-                <div className="wordContainer">
-                    <h5 id="entryTitle" className="resultInfo">{result.name}</h5>
-                </div>
-                <div className="wordContainer">
-                    <h5 id="entryArtist" className="resultInfo">{allArtists}</h5>
-                </div>
-                <div className="wordContainer">
-                    <h5 id="entryAlbum" className="resultInfo">{result.album.name}</h5>
-                </div>
-            </div>
-            <div className="spotifyInfo">
-                <button className="resultSubmit" onClick={handleAddResult}>+</button>
-            </div>
-        </div>
     });
     return (
         <form className="searchResultsList" id="playlistEntriesList">
-            <h4 id="playlistName">{props.playlistName}</h4>
-            <input type="hidden" name="_csrf" value={props.csrf} />
+            <h4 id="playlistName">{props.data.playlistName}</h4>
+            <input type="hidden" name="_csrf" value={props.data._csrf} />
             {entriesNodes}
         </form>
     );
@@ -216,10 +221,6 @@ const SearchResultWindow = function (props) {
             </div>
         );
     }
-    // create the option tags for the select
-    const optionNodes = props.results.items.map(function (result) {
-
-    });
     // create all React Components for each result that is found. This one finds the tracks. 
     // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
     const resultNodes = props.results.items.map(function (result) {
@@ -249,7 +250,7 @@ const SearchResultWindow = function (props) {
                     </div>
                 </div>
                 <div className="spotifyInfo">
-                    <button className="resultSubmit" onClick={(e) => handleAddResultToPlaylist(e, {title:result.name,artist:allArtists, album: result.album.name,link: result.external_urls.spotify,image:result.album.images[2].url})}>+</button>
+                    <button className="resultSubmit" onClick={(e) => handleAddResultToPlaylist(e, { title: result.name, artist: allArtists, album: result.album.name, link: result.external_urls.spotify, image: result.album.images[2].url })}>+</button>
                 </div>
             </div>
         );
@@ -272,9 +273,9 @@ const loadPlaylistEntries = (newData) => {
             "csrf": newData._csrf,
         },
         success: function (data) {
-            console.log(data);
+            //console.log(data);
             ReactDOM.render(
-                <PlaylistEntriesWindow csrf={data.csrf}entries={data.playlist.tracks} newData={newData} />,
+                <PlaylistEntriesWindow csrf={data.csrf} entries={data.playlist.tracks} newData={newData} data={data} />,
                 document.querySelector('#playlistDiv')
             );
         },
@@ -334,7 +335,7 @@ const setup = function (csrf) {
         dataType: 'json',
         url: '/makeAccount',
         success: function (data) {
-            console.log("IN setup");
+            //console.log("IN setup");
             loadPlaylistsFromServer(csrf);
         },
     });

@@ -89,16 +89,17 @@ const getPlaylists = (req, res) => {
 };
 
 
-const getOnePlaylist = (req, res) => {   
+const getOnePlaylist = (req, res) => {
     console.log(req.query);
     if (req.query.playlistName !== "NONE") {
-        
-        return Playlist.PlaylistModel.findByName(req.query.playlistName, (err, doc) => {
+
+        return Playlist.PlaylistModel.findByName(req.session.account.currentPlaylist, (err, doc) => {
             if (err) {
                 console.log(err);
                 return res.status(400).json({ error: "An error occurred retrieving the playlist" });
             }
-            return res.json({ playlist: doc, csrf: req.query.csrf});
+            //console.log(doc);
+            return res.json({ playlist: doc, _csrf: req.query.csrf, tracks:doc.tracks, playlistName: req.session.account.currentPlaylist});
         });
     }
     return res.status(400).status({ error: "There must be a selected playlist before showing it." });
@@ -112,10 +113,45 @@ const makePlaylistEntry = (req, res) => {
     // this function needs to be able to
     // - Find the target playlist to add to
     console.log(req.body);
-    Playlist.PlaylistModel.findOneAndUpdate(req.session.account.currentPlaylist, (err, doc) => {
-        
+
+    const newEntry = {
+        img: req.body.image,
+        title: req.body.title,
+        artist: req.body.artist,
+        album: req.body.album,
+        link: req.body.link,
+    };
+    console.log(newEntry);
+    // let temp = Playlist.PlaylistModel.findByName(req.session.account.currentPlaylist, (err, doc) => {
+    //     if (err) {
+    //         console.log(err);
+    //         return res.status(400).json({ error: "An error occurred added track to tracks in playlist" });
+    //     }
+    //     console.log(temp);
+    //     //temp.tracks.push(newEntry);
+    //     const tempPromise = temp.save();
+
+    //     tempPromise.then(() => res.status(201).json({playlistEntry:temp}));
+    //     tempPromise.catch((err) => {
+    //         if (err.code === 11000) {
+    //             return res.status(400).json({ error: "Playlist already exists" });
+    //         }
+    //         return res.status(400).json({ error: "An error occurred" });
+    //     });
+    //     return tempPromise;
+    // });
+    Playlist.PlaylistModel.findOneAndUpdate({ name: req.session.account.currentPlaylist }, { $push: {tracks:newEntry}}, {new:true}, function (err, doc) {
+        if (err) {
+            console.log(err);
+            return res.status(400).json({ error: "An error occurred retrieving the playlist" });
+        }
+        if (!doc) {
+            console.log(err);
+            return res.status(304).json({ error: "No docs found" });
+        }
+        return res.status(201).json({ doc: doc });
     });
-}
+};
 
 const removePlaylistEntry = (request, response) => {
 
@@ -128,5 +164,4 @@ module.exports.searchTerm = searchTerm;
 module.exports.makePlaylist = makePlaylist;
 module.exports.getPlaylists = getPlaylists;
 module.exports.getOnePlaylist = getOnePlaylist;
-
 module.exports.makePlaylistEntry = makePlaylistEntry;

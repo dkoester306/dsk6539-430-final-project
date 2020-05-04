@@ -12,7 +12,7 @@ var handleSearch = function handleSearch(e) {
     data: newData,
     dataType: 'json',
     success: function success(data) {
-      console.log(data.tracks.items);
+      //console.log(data.tracks.items);
       loadSearchResults(data);
     },
     error: function error(xhr, status, _error) {
@@ -33,8 +33,7 @@ var displayPlaylistContent = function displayPlaylistContent(e) {
 var handleRefreshToken = function handleRefreshToken(e) {
   e.preventDefault(); //console.log($("#searchForm").serialize());
 
-  sendAjax('POST', '/refreshToken', $("#searchForm").serialize(), function (data) {
-    console.log("Refresh Token as been updated in your account.");
+  sendAjax('POST', '/refreshToken', $("#searchForm").serialize(), function (data) {//console.log("Refresh Token as been updated in your account.");
   });
   return false;
 };
@@ -55,7 +54,11 @@ var handleAddResultToPlaylist = function handleAddResultToPlaylist(e, newData) {
   e.preventDefault();
   var string = "&title=" + newData.title + "&artist=" + newData.artist + "&album=" + newData.album + "&link=" + newData.link + "&image=" + newData.image;
   var trim = string.split(' ').join('+');
-  sendAjax('POST', '/addEntry', $('#playlistEntriesList').serialize() + trim, function (data) {});
+  console.log($('#playlistEntriesList').serialize() + trim);
+  sendAjax('POST', '/addEntry', $('#playlistEntriesList').serialize() + trim, function (data) {
+    //console.log("HERE");
+    loadPlaylistEntries(data);
+  });
 }; // will change the currentPlaylist part of the document inside the current account.
 // Will not change anything if the current playlist for the account is the same as the sent data ()
 
@@ -67,6 +70,7 @@ var handleChangeCurrentPlaylist = function handleChangeCurrentPlaylist(e, pName)
 
   sendAjax('POST', '/changePlaylist', newData, function (data) {
     // load new page with entries inside
+    //console.log(data);
     loadPlaylistEntries(data);
   });
   return false;
@@ -147,64 +151,60 @@ var MainPageWindow = function MainPageWindow(props) {
 
 
 var PlaylistEntriesWindow = function PlaylistEntriesWindow(props) {
-  if (props.entries.length === 0) {
+  if (props.data.tracks.length === 0) {
     return (/*#__PURE__*/React.createElement("form", {
         className: "searchResultsList",
         id: "playlistEntriesList"
       }, /*#__PURE__*/React.createElement("input", {
         type: "hidden",
         name: "_csrf",
-        value: props.csrf
+        value: props.data._csrf
       }), /*#__PURE__*/React.createElement("h3", {
         className: "emptySearchResults"
       }, "No Contents in Playlist"))
     );
   }
 
-  var entriesNodes = props.entries.map(function (entry) {
-    /*#__PURE__*/
-    React.createElement("div", {
-      id: "entryForm",
-      className: "resultForm"
-    }, /*#__PURE__*/React.createElement("a", {
-      href: result.external_urls.spotify
-    }, /*#__PURE__*/React.createElement("img", {
-      src: result.album.images[2].url,
-      className: "resultPicture",
-      id: "entryImage"
-    })), /*#__PURE__*/React.createElement("div", {
-      className: "songInfo"
-    }, /*#__PURE__*/React.createElement("div", {
-      className: "wordContainer"
-    }, /*#__PURE__*/React.createElement("h5", {
-      id: "entryTitle",
-      className: "resultInfo"
-    }, result.name)), /*#__PURE__*/React.createElement("div", {
-      className: "wordContainer"
-    }, /*#__PURE__*/React.createElement("h5", {
-      id: "entryArtist",
-      className: "resultInfo"
-    }, allArtists)), /*#__PURE__*/React.createElement("div", {
-      className: "wordContainer"
-    }, /*#__PURE__*/React.createElement("h5", {
-      id: "entryAlbum",
-      className: "resultInfo"
-    }, result.album.name))), /*#__PURE__*/React.createElement("div", {
-      className: "spotifyInfo"
-    }, /*#__PURE__*/React.createElement("button", {
-      className: "resultSubmit",
-      onClick: handleAddResult
-    }, "+")));
+  var entriesNodes = props.data.tracks.map(function (entry) {
+    console.log(entry.title);
+    return (/*#__PURE__*/React.createElement("div", {
+        id: "entryForm",
+        className: "resultForm"
+      }, /*#__PURE__*/React.createElement("a", {
+        href: entry.link
+      }, /*#__PURE__*/React.createElement("img", {
+        src: entry.img,
+        className: "resultPicture",
+        id: "entryImage"
+      })), /*#__PURE__*/React.createElement("div", {
+        className: "songInfo"
+      }, /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "entryTitle",
+        className: "resultInfo"
+      }, entry.title)), /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "entryArtist",
+        className: "resultInfo"
+      }, entry.artist)), /*#__PURE__*/React.createElement("div", {
+        className: "wordContainer"
+      }, /*#__PURE__*/React.createElement("h5", {
+        id: "entryAlbum",
+        className: "resultInfo"
+      }, entry.album))))
+    );
   });
   return (/*#__PURE__*/React.createElement("form", {
       className: "searchResultsList",
       id: "playlistEntriesList"
     }, /*#__PURE__*/React.createElement("h4", {
       id: "playlistName"
-    }, props.playlistName), /*#__PURE__*/React.createElement("input", {
+    }, props.data.playlistName), /*#__PURE__*/React.createElement("input", {
       type: "hidden",
       name: "_csrf",
-      value: props.csrf
+      value: props.data._csrf
     }), entriesNodes)
   );
 }; // displays the window showing All PLAYLISTS
@@ -254,11 +254,9 @@ var SearchResultWindow = function SearchResultWindow(props) {
         className: "emptySearchResults"
       }, "Include at least 1 character in search field!"))
     );
-  } // create the option tags for the select
-
-
-  var optionNodes = props.results.items.map(function (result) {}); // create all React Components for each result that is found. This one finds the tracks. 
+  } // create all React Components for each result that is found. This one finds the tracks. 
   // NEED TO IMPLEMENT SEARCH OF ALL TYPES (ALBUMS, ARTISTS only section)
+
 
   var resultNodes = props.results.items.map(function (result) {
     var allArtists = ""; // combine all the artists into one string for placement in the artist h5
@@ -330,11 +328,12 @@ var loadPlaylistEntries = function loadPlaylistEntries(newData) {
       "csrf": newData._csrf
     },
     success: function success(data) {
-      console.log(data);
+      //console.log(data);
       ReactDOM.render( /*#__PURE__*/React.createElement(PlaylistEntriesWindow, {
         csrf: data.csrf,
         entries: data.playlist.tracks,
-        newData: newData
+        newData: newData,
+        data: data
       }), document.querySelector('#playlistDiv'));
     },
     error: function error(xhr, status, _error2) {
@@ -382,7 +381,7 @@ var setup = function setup(csrf) {
     dataType: 'json',
     url: '/makeAccount',
     success: function success(data) {
-      console.log("IN setup");
+      //console.log("IN setup");
       loadPlaylistsFromServer(csrf);
     }
   });
