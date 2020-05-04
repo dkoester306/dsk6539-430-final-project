@@ -5,7 +5,7 @@ const models = require('../models');
 const { Account } = models;
 
 const client_id = '960af2f158f047cd984342e083139399'; // Your client id
-const redirect_uri = 'http://localhost:3000/callback'; // Your redirect uri
+const redirect_uri = 'https://dsk6539-final-project.herokuapp.com/callback'; // Your redirect uri
 const client_secret = '29ef411e8d084371a5a9ae89df95e260';
 const state_key = 'spotify_auth_state';
 
