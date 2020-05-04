@@ -1,6 +1,5 @@
 
 const request = require('request');
-const account = require('./Account.js');
 const models = require('../models');
 
 const { Playlist } = models;
@@ -100,9 +99,6 @@ const getOnePlaylist = (req, res) => {
   return res.status(400).status({ error: 'There must be a selected playlist before showing it.' });
 };
 
-const removePlaylist = (request, response) => {
-  // - check if 'tracks' array is empty in PlaylistSchema
-};
 
 const makePlaylistEntry = (req, res) => {
   // this function needs to be able to
@@ -116,25 +112,7 @@ const makePlaylistEntry = (req, res) => {
     album: req.body.album,
     link: req.body.link,
   };
-  // console.log(newEntry);
-  // let temp = Playlist.PlaylistModel.findByName(req.session.account.currentPlaylist, (err, doc) => {
-  //     if (err) {
-  //         console.log(err);
-  //         return res.status(400).json({ error: "An error occurred added track to tracks in playlist" });
-  //     }
-  //     console.log(temp);
-  //     //temp.tracks.push(newEntry);
-  //     const tempPromise = temp.save();
 
-  //     tempPromise.then(() => res.status(201).json({playlistEntry:temp}));
-  //     tempPromise.catch((err) => {
-  //         if (err.code === 11000) {
-  //             return res.status(400).json({ error: "Playlist already exists" });
-  //         }
-  //         return res.status(400).json({ error: "An error occurred" });
-  //     });
-  //     return tempPromise;
-  // });
   Playlist.PlaylistModel.findOneAndUpdate({ name: req.session.account.currentPlaylist }, { $push: { tracks: newEntry } }, { new: true }, (err, doc) => {
     if (err) {
       // console.log(err);
@@ -146,10 +124,6 @@ const makePlaylistEntry = (req, res) => {
     }
     return res.status(201).json({ doc });
   });
-};
-
-const removePlaylistEntry = (request, response) => {
-
 };
 
 

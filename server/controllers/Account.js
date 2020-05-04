@@ -33,7 +33,6 @@ const generateRandomString = function (length) {
 const login = (req, res) => {
   const state = generateRandomString(16);
   res.cookie(state_key, state);
-  console;
   // localStorage.setItem(stateKey, state);
   const scope = 'user-read-private user-read-email';
 
@@ -84,7 +83,7 @@ const callbackSpotify = (req, res) => {
         grant_type: 'authorization_code',
       },
       headers: {
-        Authorization: `Basic ${new Buffer(`${client_id}:${client_secret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString('base64')}`, // USED TO Be new Buffer but thats deprecated now
       },
       json: true,
     };
@@ -92,7 +91,7 @@ const callbackSpotify = (req, res) => {
 
     request.post(authOptions, (error, response, body) => {
       if (!error && response.statusCode === 200) {
-        module.exports.currentSpotifyToken = body.access_token,
+        module.exports.currentSpotifyToken = body.access_token;
         module.exports.refreshSpotifyToken = body.refresh_token;
 
 
@@ -135,14 +134,13 @@ const makeAccount = (req, res) => {
       // console.log(doc);
       // console.log(req.session.account);
       req.session.account = Account.AccountModel.toAPI(doc);
-      req.session.save((err) => {
-        if (err) {
+      req.session.save((error) => {
+        if (error) {
           // console.log(err);
         }
         // console.log('IN SAVE');
-        // return res.json(req.session.account);
+        return res.status(201);
       });
-      // console.log(req.session.account);
     });
     return res.status(304).json({ message: 'THERE IS AN ACCOUNT PRESENT' });
   }
@@ -155,7 +153,6 @@ const makeAccount = (req, res) => {
     json: true,
   };
 
-  const isNew = false;
   request.get(options, (error, response, body) => {
     Account.AccountModel.findByDisplayName(body.display_name, (err, doc) => {
       if (err) {
@@ -183,10 +180,10 @@ const makeAccount = (req, res) => {
           req.session.account = Account.AccountModel.toAPI(newAccount);
           return res.status(201).json({ message: 'Make new account' });
         });
-        savePromise.catch((err) => {
+        savePromise.catch((er) => {
           // console.log(`ERROR IN makeAccount Promise!!!! ${err}`);
 
-          if (err.code === 11000) {
+          if (er.code === 11000) {
             return res.status(400).json({ error: 'Username already in use.' });
           }
           return res.status(400).json({ error: 'An error occurred' });
@@ -197,13 +194,14 @@ const makeAccount = (req, res) => {
         return res.status(304).json({ message: 'Did not create a new account' });
       }
     });
+    return res.status(304).json({ message: 'Did not create a new account' });
   });
 };
 
 const changeRefreshToken = (req, res) => {
   const authOptions = {
     url: 'https://accounts.spotify.com/api/token',
-    headers: { Authorization: `Basic ${new Buffer(`${client_id}:${client_secret}`).toString('base64')}` },
+    headers: { Authorization: `Basic ${Buffer.from(`${client_id}:${client_secret}`).toString('base64')}` }, // USED TO Be new Buffer but thats deprecated now
     form: {
       grant_type: 'refresh_token',
       refresh_token: req.session.account.refreshToken,
