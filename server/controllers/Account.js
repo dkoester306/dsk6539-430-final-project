@@ -178,7 +178,7 @@ const makeAccount = (req, res) => {
 
         savePromise.then(() => {
           req.session.account = Account.AccountModel.toAPI(newAccount);
-          return res.status(201).json({ message: 'Make new account' });
+          
         });
         savePromise.catch((er) => {
           // console.log(`ERROR IN makeAccount Promise!!!! ${err}`);
@@ -194,7 +194,7 @@ const makeAccount = (req, res) => {
         return res.status(304).json({ message: 'Did not create a new account' });
       }
     });
-    return res.status(304).json({ message: 'Did not create a new account' });
+    return res.status(201).json({ message: 'Make new account' });
   });
 };
 
