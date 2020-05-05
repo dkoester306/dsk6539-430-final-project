@@ -191,7 +191,7 @@ const makeAccount = (req, res) => {
       } else if (doc) {
         // console.log(doc);
 
-        return res.status(304).json({ message: 'Did not create a new account' });
+        //return res.status(304).json({ message: 'Did not create a new account' });
       }
     });
     return res.status(201).json({ message: 'Make new account' });
