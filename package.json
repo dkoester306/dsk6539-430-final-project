@@ -52,6 +52,6 @@
     "redis": "^3.0.2",
     "request": "~2.83.0",
     "serve-favicon": "^2.5.0",
-    "underscore": "^1.9.2"
+    "underscore": "^1.12.1"
   }
 }
